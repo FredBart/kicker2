@@ -12,7 +12,8 @@ export class KickerData extends React.Component<RouteComponentProps<{}>, FetchDa
         super();
         this.state = { forecasts: [], loading: true };
 
-        fetch('api/SampleData/WeatherForecasts')
+        // See KickerDataController in Controllers/KickerController.tsx
+        fetch('api/Kicker/WeatherForecasts')
             .then(response => response.json() as Promise<WeatherForecast[]>)
             .then(data => {
                 this.setState({ forecasts: data, loading: false });

@@ -34,6 +34,7 @@ export class NavMenu extends React.Component<{}, {}> {
                             </NavLink>
                         </li>
                         <li>
+                            {/* /controls is specified in ClientApp/ and leads to ClientApp/components/KickerManagement.tsx */}
                             <NavLink to={ '/controls' } activeClassName='active'>
                                 <span className='glyphicon glyphicon-th-list'></span> Team Controls
                             </NavLink>
