@@ -2,18 +2,18 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import 'isomorphic-fetch';
 
-interface FetchDataExampleState {
+interface KickerState {
     forecasts: WeatherForecast[];
     loading: boolean;
 }
 
-export class KickerData extends React.Component<RouteComponentProps<{}>, FetchDataExampleState> {
+export class KickerData extends React.Component<RouteComponentProps<{}>, KickerState> {
     constructor() {
         super();
         this.state = { forecasts: [], loading: true };
 
         // See KickerDataController in Controllers/KickerController.tsx
-        fetch('api/Kicker/WeatherForecasts')
+        fetch('api/Kicker/WeatherForecasts2', {method : 'GET'})
             .then(response => response.json() as Promise<WeatherForecast[]>)
             .then(data => {
                 this.setState({ forecasts: data, loading: false });
@@ -28,6 +28,7 @@ export class KickerData extends React.Component<RouteComponentProps<{}>, FetchDa
         return <div>
             <h1>Weather forecast</h1>
             <p>This component demonstrates fetching data from the server.</p>
+
             { contents }
         </div>;
     }

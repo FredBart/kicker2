@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kicker.Controllers
 {
-    // http://localhost:5000/api/Kicker/<method> to get the return values of the methods
+    // http://localhost:5000/api/Kicker/<action> to get the return values of the methods
+    // Kicker comes from KickerController as an extension to Controller
     // Slashes to combine controllers, actions and further parameters
 
     [Route("api/[controller]")]
@@ -19,6 +20,18 @@ namespace Kicker.Controllers
 
         [HttpGet("[action]")]
         public IEnumerable<WeatherForecast> WeatherForecasts()
+        {
+            var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
+                TemperatureC = rng.Next(-20, 55),
+                Summary = Summaries[rng.Next(Summaries.Length)]
+            });
+        }
+
+        [HttpPost("[action]")]
+        public IEnumerable<WeatherForecast> WeatherForecasts2()
         {
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
