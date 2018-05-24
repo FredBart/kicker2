@@ -17,3 +17,19 @@ POST /teams
   "name": "TestTeam"
 }
 ```
+
+**Request:**
+```json
+POST /players
+{
+  "name": "TestPlayer"
+}
+```
+**Response:**
+```json
+200
+{
+  "id": 1,
+  "name": "TestPlayer"
+}
+```

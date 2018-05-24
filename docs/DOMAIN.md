@@ -1,20 +1,21 @@
 # domain
 
-# Team
-- id?: Int
+# Player
 - name: String
-- players: Player[]
-- score?: Int
-- history: Match[]
+- teams: String[]
+- matches: Guid[]
+- (functions to add and remove matches and teams)
+
+# Team
+- name: String
+- players: String[]
+- matches: Guid[]
+- (functions to add and remove matches and players)
 
 # Match
-- id?: Int
-- team1: Team
-- team2: Team
+- id: Guid
+- team1: String
+- team2: String
 - goals1: Int
 - goals2: Int
-
-# Player
-- id?: Int
-- name: String
-- teams: Team[]
+- (functions to return winner, goals and general result)
