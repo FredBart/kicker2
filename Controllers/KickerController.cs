@@ -30,14 +30,15 @@ namespace Kicker.Controllers
             });
         }
 
-        [HttpPost("[action]")]
-        public IEnumerable<WeatherForecast> WeatherForecasts2()
+        // fetch('api/Kicker/WeatherForecasts/20', {method : 'POST'}) in typescript sets number to 20.
+        [HttpPost("[action]/{number}")]
+        public IEnumerable<WeatherForecast> WeatherForecasts(int number)
         {
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
-                TemperatureC = rng.Next(-20, 55),
+                TemperatureC = number,
                 Summary = Summaries[rng.Next(Summaries.Length)]
             });
         }
