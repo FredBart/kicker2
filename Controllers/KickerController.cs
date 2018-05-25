@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
 
 
 namespace Kicker.Controllers
@@ -16,9 +15,31 @@ namespace Kicker.Controllers
     [Route("api/[controller]")]
     public class KickerController : Controller
     {
-        static ConcurrentDictionary<string, Team> TEAMS_DB = new ConcurrentDictionary<string, Team>();
-        static ConcurrentDictionary<string, Player> PLAYERS_DB = new ConcurrentDictionary<string, Player>();
-        static ConcurrentDictionary<Guid, Match> MATCHES_DB = new ConcurrentDictionary<Guid, Match>();
+        static ConcurrentDictionary<string, KickerFramework.Team> TEAMS_DB = new ConcurrentDictionary<string, KickerFramework.Team>();
+        static ConcurrentDictionary<string, KickerFramework.Player> PLAYERS_DB = new ConcurrentDictionary<string, KickerFramework.Player>();
+
+        [HttpPost("[action]/{id}")]
+
+        // The following will be the basis.
+        static void PostTeam(string name)
+        {
+            if (!TEAMS_DB.TryAdd(name, new KickerFramework.Team(name)))
+            {
+                // return 409
+            } else
+            {
+                // return 201
+            }
+        }
+
+
+
+
+
+
+
+
+        // The below part of this class is only for testing purpose.
         private static string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -71,57 +92,114 @@ namespace Kicker.Controllers
             }
         }
     }
-}
-
-
-public class Player
-{
-    // Player names must be unique. It is possible that people in real life share the same name,
-    // but inside the GUI it will only create confusion. Hence, it doesn't seem reasonable to
-    // anable identical names.
-    public string name;
-
-    // players can be in multiple teams.
-    public List<string> teams;
-
-    // Store matches instead of points. The computation of the points is easy, it doesn't take much space,
-    // and in the end it will be possible to check whether you would have won under a different rule set.
-    // Also, it is possible to remove certain matches later on.
-    public List<Guid> matches;
-
-    //Constructor
-    public Player(string nm)
+    public class KickerFramework
     {
-        name = nm;
-        teams = new List<string>();
-        matches = new List<Guid>();
-    }
+        public class Player
+        {
+            // Player names must be unique. It is possible that people in real life share the same name,
+            // but inside the GUI it will only cause confusion. Hence, it doesn't seem reasonable to
+            // enable identical names.
+            public string name;
 
+            // players can be in multiple teams. This list is necessary to be able to efficiently delete players.
+            public List<string> teams;
+
+            //Constructor
+            public Player(string nm)
+            {
+                name = nm;
+                teams = new List<string>();
+            }
+        }
+
+        public class Team
+        {
+            // Team names must be unique
+            public string name;
+
+            // List of members
+            public List<string> members;
+
+            // Points
+            public int points;
+
+            // Constructor
+            public Team(string nm)
+            {
+                name = nm;
+                members = new List<string>();
+                points = 0;
+            }
+        }
+
+        public int Match(Team t1, Team t2, int goalst1, int goalst2)
+        {
+            if (goalst1 == goalst2)
+            {
+                // No draws allowed
+                return 1;
+            }
+            if (goalst1 > goalst2)
+            {
+                // Add the goals plus 5 for the loser and 10 for the winner
+                t1.points += goalst1 + 10;
+                t2.points += goalst2 + 5;
+            }
+            else
+            {
+                t1.points += goalst1 + 5;
+                t2.points += goalst2 + 10;
+            }
+            // Successful match
+            return 0;
+        }
+
+        // Same code as in RemovePlayer => Change one, change both!
+        public int AddPlayer(Team t, Player p)
+        {
+            if (t.members.Contains(p.name))
+            {
+                // Don't add one player multiple times
+                return 1;
+            }
+            // Successful addition
+            t.members.Add(p.name);
+            p.teams.Add(t.name);
+            return 0;
+        }
+
+        // Same code as in AddPlayer => Change one, change both!
+        public int RemovePlayer(Team t, Player p)
+        {
+            if (!t.members.Contains(p.name))
+            {
+                // Don't try to remove what doesn't exist
+                return 1;
+            }
+            // Successful Removal
+            t.members.Remove(p.name);
+            p.teams.Remove(t.name);
+            return 0;
+        }
+    }
 }
 
-public class Team
-{
-    // Team names must be unique
-    public string name;
-    // List of members
-    public List<string> members;
 
-    // Store matches instead of points. The computation of the points is easy, it doesn't take much space,
-    // and in the end it will be possible to check whether you would have won under a different rule set.
-    // Also, it is possible to remove certain matches later on.
-    public List<Guid> matches;
-    // Constructor
-    public Team(string nm)
-    {
-        name = nm;
-        members = new List<string>();
-        matches = new List<Guid>();
-    }
-}
+
+
+// The code below is from an earlier consideration. First, I wanted to store
+// matches instead of points, such that there would be a match history.
+// However, since this is only an example project, and since tie programming
+// skills are more important than what type of software I would like, I decided
+// to remove the option. Nevertheless, I will keep the part commented out,
+// because it's likely I'll use this code myself someday.
 
 // Store matches instead of points. The number is unlikely to become
 // large. Hence, all data can be stored, and the points can be
 // computed later.
+
+
+/*
 public class Match
 {
     // two teams
@@ -176,3 +254,4 @@ public class Match
     }
 
 }
+*/
