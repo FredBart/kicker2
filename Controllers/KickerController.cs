@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
-
+using System.Net;
+using System.Net.Http;
 
 namespace Kicker.Controllers
 {
@@ -21,14 +22,16 @@ namespace Kicker.Controllers
         [HttpPost("[action]/{id}")]
 
         // The following will be the basis.
-        static void PostTeam(string name)
+        static HttpResponseMessage PostTeam(string name)
         {
             if (!TEAMS_DB.TryAdd(name, new KickerFramework.Team(name)))
             {
                 // return 409
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
             } else
             {
                 // return 201
+                return new HttpResponseMessage(HttpStatusCode.Created);
             }
         }
 
