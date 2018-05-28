@@ -20,26 +20,168 @@ namespace Kicker.Controllers
         static ConcurrentDictionary<string, Team> TEAMS_DB = new ConcurrentDictionary<string, Team>();
         static ConcurrentDictionary<string, Player> PLAYERS_DB = new ConcurrentDictionary<string, Player>();
 
-        [HttpPost("[action]/{id}")]
+
+
+        // csv is mainly a placeholder. I do not yet know how to properly return all the relevant information.
+        [HttpGet("[action]")]
+        static HttpResponseMessage GetTeams(string csv)
+        {
+            csv = String.Join(",", TEAMS_DB.Keys);
+            // return 202;
+            return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+        }
+
+        static HttpResponseMessage GetPlayers(string csv)
+        {
+            csv = String.Join(",", PLAYERS_DB.Keys);
+            // return 202;
+            return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+        }
+
+
+        [HttpGet("[action]/{name}")]
+        static HttpResponseMessage GetPlayersOfTeam(string name, string csv)
+        {
+            if (TEAMS_DB.TryGetValue(name, out Team team))
+            {
+                csv = String.Join(",", team.members);
+                // return 202;
+                return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+            }
+            else
+            {
+                // return 409;
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
+            }
+        }
+
+        static HttpResponseMessage GetTeamsOfPlayers(string name, string csv)
+        {
+            if (PLAYERS_DB.TryGetValue(name, out Player player))
+            {
+                csv = String.Join(",", player.teams);
+                // return 202;
+                return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+            }
+            else
+            {
+                // return 409;
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
+            }
+        }
+
+
+        [HttpPost("[action]/{name}")]
 
         // The following will be the basis.
         static HttpResponseMessage PostTeam(string name)
         {
             if (!TEAMS_DB.TryAdd(name, new Team(name)))
             {
-                // return 409
+                // return 409;
                 return new HttpResponseMessage(HttpStatusCode.Conflict);
             }
             else
             {
-                // return 201
+                // return 201;
+                return new HttpResponseMessage(HttpStatusCode.Created);
+            }
+        }
+
+        static HttpResponseMessage PostPlayer(string name)
+        {
+            if (!PLAYERS_DB.TryAdd(name, new Player(name)))
+            {
+                // return 409;
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
+            }
+            else
+            {
+                // return 201;
                 return new HttpResponseMessage(HttpStatusCode.Created);
             }
         }
 
 
 
+        [HttpDelete("[action]/{name}")]
+        static HttpResponseMessage DeleteTeam(string name)
+        {
+            if (TEAMS_DB.TryRemove(name, out Team _))
+            {
+                // return 204;
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
+            }
+            else
+            {
+                //return = 404;
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+        }
 
+        static HttpResponseMessage DeletePlayer(string name)
+        {
+            if (PLAYERS_DB.TryRemove(name, out Player _))
+            {
+                // return 204;
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
+            }
+            else
+            {
+                //return = 404;
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+        }
+
+
+        // /yourPath?teamName=a&playerName=b
+        [HttpPut("[action]/{teamName,playerName}")]
+        static HttpResponseMessage AddPlayerToTeam(string teamName, string playerName)
+        {
+            if (PLAYERS_DB.TryGetValue(playerName, out Player player)
+             && TEAMS_DB.TryGetValue(teamName, out Team team))
+            {
+                if (AddPlayer(team, player) == 0)
+                {
+                    // return 200;
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                }
+                else
+                {
+                    // return 409;
+                    return new HttpResponseMessage(HttpStatusCode.Conflict);
+                }
+            }
+            else
+            {
+                //return = 404;
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+        }
+
+        [HttpDelete("[action]/{teamName,playerName}")]
+        static HttpResponseMessage RemovePlayerFromTeam(string teamName, string playerName)
+        {
+            if (PLAYERS_DB.TryGetValue(playerName, out Player player)
+             && TEAMS_DB.TryGetValue(teamName, out Team team))
+            {
+                if (RemovePlayer(team, player) == 0)
+                {
+                    // return 200;
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                }
+                else
+                {
+                    // return 409;
+                    return new HttpResponseMessage(HttpStatusCode.Conflict);
+                }
+            }
+            else
+            {
+                //return = 404;
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+        }
 
 
 
@@ -98,7 +240,7 @@ namespace Kicker.Controllers
             }
         }
 
-        public int Match(Team t1, Team t2, int goalst1, int goalst2)
+        static int Match(Team t1, Team t2, int goalst1, int goalst2)
         {
             if (goalst1 == goalst2)
             {
@@ -121,7 +263,7 @@ namespace Kicker.Controllers
         }
 
         // Same code as in RemovePlayer => Change one, change both!
-        public int AddPlayer(Team t, Player p)
+        static int AddPlayer(Team t, Player p)
         {
             if (t.members.Contains(p.name))
             {
@@ -135,7 +277,7 @@ namespace Kicker.Controllers
         }
 
         // Same code as in AddPlayer => Change one, change both!
-        public int RemovePlayer(Team t, Player p)
+        static int RemovePlayer(Team t, Player p)
         {
             if (!t.members.Contains(p.name))
             {
