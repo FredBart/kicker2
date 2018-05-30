@@ -13,7 +13,7 @@ export class KickerData extends React.Component<RouteComponentProps<{}>, KickerS
         this.state = { forecasts: [], loading: true };
 
         // See KickerDataController in Controllers/KickerController.tsx
-        fetch('api/Kicker/WeatherForecasts/20', {method : 'POST'})
+        fetch('api/Kicker/WeatherForecasts/20', { method: 'POST' })
             .then(response => response.json() as Promise<WeatherForecast[]>)
             .then(data => {
                 this.setState({ forecasts: data, loading: false });
@@ -29,9 +29,31 @@ export class KickerData extends React.Component<RouteComponentProps<{}>, KickerS
             <h1>Weather forecast</h1>
             <p>This component demonstrates fetching data from the server.</p>
 
-            { contents }
+            {contents}
         </div>;
     }
+
+    // public render() {
+    //     return <div>
+    //         <h1>Counter</h1>
+
+    //         <p>This is a simple example of a React component.</p>
+
+    //         <p>Current count: <strong>{ this.state.currentCount }</strong></p>
+
+    //         <button onClick={ () => { this.incrementCounter() } }>Increment</button>
+    //     </div>;
+    // }
+
+    private static renderPlayerTable() {
+        String test = "test";
+        return <ul>
+            <li>
+                
+            </li>
+        </ul>
+    }
+
 
     private static renderForecastsTable(forecasts: WeatherForecast[]) {
         return <table className='table'>
@@ -44,14 +66,14 @@ export class KickerData extends React.Component<RouteComponentProps<{}>, KickerS
                 </tr>
             </thead>
             <tbody>
-            {forecasts.map(forecast =>
-                <tr key={ forecast.dateFormatted }>
-                    <td>{ forecast.dateFormatted }</td>
-                    <td>{ forecast.temperatureC }</td>
-                    <td>{ forecast.temperatureF }</td>
-                    <td>{ forecast.summary }</td>
-                </tr>
-            )}
+                {forecasts.map(forecast =>
+                    <tr key={forecast.dateFormatted}>
+                        <td>{forecast.dateFormatted}</td>
+                        <td>{forecast.temperatureC}</td>
+                        <td>{forecast.temperatureF}</td>
+                        <td>{forecast.summary}</td>
+                    </tr>
+                )}
             </tbody>
         </table>;
     }
