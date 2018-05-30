@@ -14,11 +14,20 @@ export class KickerData extends React.Component<RouteComponentProps<{}>, KickerS
 
         // See KickerDataController in Controllers/KickerController.tsx
         fetch('api/Kicker/WeatherForecasts/20', { method: 'POST' })
-            .then(response => response.json() as Promise<WeatherForecast[]>)
+            .then(test => test.json() as Promise<WeatherForecast[]>)
             .then(data => {
                 this.setState({ forecasts: data, loading: false });
             });
+
+        // fetch('teams/testTeam/players', { method: 'Post' })
+        //     .then(response => response.text())
+        //     .then(text => /* do something with text */)
+        //     .then(data => {
+        //         this.setState({ forecasts: data, loading: false });
+        //     });
     }
+
+
 
     public render() {
         let contents = this.state.loading
@@ -46,10 +55,9 @@ export class KickerData extends React.Component<RouteComponentProps<{}>, KickerS
     // }
 
     private static renderPlayerTable() {
-        String test = "test";
         return <ul>
             <li>
-                
+
             </li>
         </ul>
     }

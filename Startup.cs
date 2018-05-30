@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using KickerControllers;
+using Microsoft.AspNetCore.Http;
 
 namespace Kicker
 {
     public class Startup
     {
+        static KickerController kicker = new KickerController();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -44,15 +47,59 @@ namespace Kicker
 
             app.UseStaticFiles();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+            // app.UseMvc(routes =>
+            // {
+            //     routes.MapRoute(
+            //         name: "CmsRoutes",
+            //         url: "{*permalink}",
+            //         defaults: new { controller = "CmsCorePage", action = "Index" },
+            //         constraints: new { url =  DependencyResolver.Current.GetService<CmsCoreRouting>() }
+            //     );
 
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
+            //     routes.MapRoute(
+            //         name: "default",
+            //         template: "{controller=Home2}/{action=Index}/{id?}");
+
+            //     routes.MapSpaFallbackRoute(
+            //         name: "spa-fallback",
+            //         defaults: new { controller = "Home", action = "Index" });
+            // });
+
+            app.Run(async context =>
+            {
+                var req = context.Request;
+                var res = context.Response;
+                try
+                {
+                    var path = req.Path.ToString();
+                    if (path.StartsWith("/teams"))
+                    {
+                        await kicker.TeamsEndpoint(req, res);
+                        // await context.Response.WriteAsync("Hello, World!");
+                    }
+                    else if (path.StartsWith("/players"))
+                    {
+                        await kicker.PlayersEndpoint(req, res);
+                    }
+                    else if (req.Path == "/test.js")
+                    {
+                        // Allow external Javascript files
+                        res.StatusCode = 200;
+                        byte[] body = System.IO.File.ReadAllBytes("test.js");
+                        res.ContentType = "text/javascript; charset=utf-8";
+                        res.ContentLength = body.LongLength;
+                        await res.Body.WriteAsync(body, 0, body.Length);
+                    }
+                    else
+                    {
+                        res.StatusCode = 404;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    res.StatusCode = 500;
+                }
             });
         }
     }

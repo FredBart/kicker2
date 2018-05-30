@@ -18,54 +18,93 @@ namespace Kicker
 {
     public class Program
     {
-        //         public static void Main(string[] args)
-        //         {
-        //             BuildWebHost(args).Run();
-        //         }
-
-        //         public static IWebHost BuildWebHost(string[] args) =>
-        //             WebHost.CreateDefaultBuilder(args)
-        //                 .UseStartup<Startup>()
-        //                 .Build();
-        //     }
-        // }
-
         static KickerController kicker = new KickerController();
 
-        static void Main()
+        public static void Main(string[] args)
         {
-            new WebHostBuilder()
-                .UseKestrel()
-                .Configure(app =>
-                    app.Run(async context =>
-                    {
-                        var req = context.Request;
-                        var res = context.Response;
-                        try
-                        {
-                            var path = req.Path.ToString();
-                            if (path.StartsWith("/teams"))
-                            {
-                                await kicker.TeamsEndpoint(req, res);
-                            }
-                            else if (path.StartsWith("/players"))
-                            {
-                                await kicker.PlayersEndpoint(req, res);
-                            }
-                            else
-                            {
-                                res.StatusCode = 404;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex);
-                            res.StatusCode = 500;
-                        }
-                    })
-                )
-                .Build()
-                .Run();
+            BuildWebHost(args).Run();
         }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .Build();
+
+
+        // public static IWebHost BuildWebHost2(string[] args) =>
+        //     WebHost
+        //     .CreateDefaultBuilder(args)
+        //     .Configure(app =>
+        //     app.Run(async context =>
+        //     {
+        //         var req = context.Request;
+        //         var res = context.Response;
+        //         try
+        //         {
+        //             var path = req.Path.ToString();
+        //             if (path.StartsWith("/teams"))
+        //             {
+        //                 await kicker.TeamsEndpoint(req, res);
+        //             }
+        //             else if (path.StartsWith("/players"))
+        //             {
+        //                 await kicker.PlayersEndpoint(req, res);
+        //             }
+        //             else
+        //             {
+        //                 res.StatusCode = 404;
+        //             }
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             Console.WriteLine(ex);
+        //             res.StatusCode = 500;
+        //         }
+        //     })
+        // )
+        // .UseStartup<Startup>()
+        // .Build();
+
+
+        // static void Main()
+        // {
+        //     new WebHostBuilder()
+        //         .UseKestrel()
+        //         .Configure(app =>
+        //             app.Run(async context =>
+        //             {
+        //                 var req = context.Request;
+        //                 var res = context.Response;
+        //                 try
+        //                 {
+        //                     var path = req.Path.ToString();
+        //                     if (path.StartsWith("/teams"))
+        //                     {
+        //                         await kicker.TeamsEndpoint(req, res);
+        //                     }
+        //                     else if (path.StartsWith("/players"))
+        //                     {
+        //                         await kicker.PlayersEndpoint(req, res);
+        //                     }
+        //                     else
+        //                     {
+        //                         res.StatusCode = 404;
+        //                     }
+        //                 }
+        //                 catch (Exception ex)
+        //                 {
+        //                     Console.WriteLine(ex);
+        //                     res.StatusCode = 500;
+        //                 }
+        //             })
+        //         )
+        //         .Build()
+        //         .Run();
+        // }
+
+
+
     }
 }
+
+

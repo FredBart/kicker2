@@ -34,7 +34,7 @@ namespace KickerControllers
             {
                 if (req.Method == "GET")
                 {
-                    await GetTeams(req, res);
+                    await GetTeams(req, res); ;
                 }
                 else
                 {
@@ -167,7 +167,7 @@ namespace KickerControllers
             // return new HttpResponseMessage(HttpStatusCode.Accepted);                
         }
 
-         // GET /players
+        // GET /players
         static Task GetPlayers(HttpRequest req, HttpResponse res)
         {
             var csv = String.Join(",", PLAYERS_DB.Keys);
@@ -259,7 +259,7 @@ namespace KickerControllers
             }
         }
 
-         // DELETE /players/$playerId
+        // DELETE /players/$playerId
         static void DeletePlayer(string name, HttpRequest req, HttpResponse res)
         {
             if (PLAYERS_DB.TryRemove(name, out Player _))
