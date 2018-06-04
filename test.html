@@ -1,14 +1,95 @@
-<!DOCTYPE html>
 <html>
+
+<head>
+  <style type="text/css">
+    .alert-box {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+
+    .success {
+      color: #3c763d;
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+      display: none;
+    }
+
+    .failure {
+      color: #a94442;
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      display: none;
+    }
+
+    .warning {
+      color: #8a6d3b;
+      background-color: #fcf8e3;
+      border-color: #faebcc;
+      display: none;
+    }
+  </style>
+</head>
+
 <body>
+  <p>
+    <button id="success-btn">Success</button>
+    <button id="failure-btn">Failure</button>
+    <button id="warning-btn">Warning</button>
+  </p>
+  <div class="alert-box success" style="display: none;">Successful Alert !!!</div>
+  <div class="alert-box failure" style="display: none;">Failure Alert !!!</div>
+  <div class="alert-box warning" style="display: none;">Warning Alert !!!</div>
 
-<form action="/action_page.php" method="post" target="_blank">
- A: <input type="text" name="fname"><br>
- B: <input type="text" name="lname"><br>
-  <input type="submit" value="Submit">
-</form>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
 
-<p>Click on the submit button, and the form will be submittied using the POST method.</p>
+      function showToast(type) {
+        let btn = document.querySelector(`#${type}-btn`)
+        let div = document.querySelector(`div.${type}`)
+        btn.addEventListener('click', () => {
+          div.style.display = 'block'
+          setTimeout(() => {
+            div.style.display = 'none'
+          }, 1000)
+        })
+      }
+
+      showToast('success')
+      showToast('failure')
+      showToast('warning')
+    })
+  </script>
+
+  <!-- <script type="text/javascript">
+    document.querySelector('#success-btn').addEventListener('click', () => {
+      let div = document.querySelector('div.success')
+      div.style.display = 'block'
+      setTimeout(() => {
+        div.style.display = 'none'
+      }, 1000)
+    })
+
+    document.querySelector('#failure-btn').addEventListener('click', () => {
+      let div = document.querySelector('div.failure')
+      div.style.display = 'block'
+      setTimeout(() => {
+        div.style.display = 'none'
+      }, 1000)
+    })
+
+    document.querySelector('#warning-btn').addEventListener('click', () => {
+      let div = document.querySelector('div.warning')
+      div.style.display = 'block'
+      setTimeout(() => {
+        div.style.display = 'none'
+      }, 1000)
+    })
+  </script> -->
+
 
 </body>
+
+
 </html>

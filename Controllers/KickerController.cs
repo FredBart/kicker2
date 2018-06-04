@@ -74,7 +74,7 @@ namespace Kicker.Controllers
         [HttpPost("[action]/{name}")]
 
         // The following will be the basis.
-        static HttpResponseMessage PostTeam(string name)
+        public HttpResponseMessage PostTeam(string name)
         {
             if (!TEAMS_DB.TryAdd(name, new Team(name)))
             {

@@ -34,12 +34,12 @@ export class NavMenu extends React.Component<{}, {}> {
                                 <span className='glyphicon glyphicon-th-list'></span> Fetch data
                             </NavLink>
                         </li>
-                        <li>
+                        {/* <li> */}
                             {/* /controls is specified in ClientApp/ and leads to ClientApp/components/KickerManagement.tsx */}
-                            <NavLink to={'/controls'} activeClassName='active'>
+                            {/* <NavLink to={'/controls'} activeClassName='active'>
                                 <span className='glyphicon glyphicon-th-list'></span> Team Controls
-                            </NavLink>
-                        </li>
+                            </NavLink> */}
+                        {/* </li> */}
                         {/* <li>
                             /controls is specified in ClientApp/ and leads to ClientApp/components/KickerManagement.tsx
                             <NavLink to={'/controls/renderForecastsTable'} activeClassName='active' action='POST'>
