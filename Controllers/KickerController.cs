@@ -110,7 +110,7 @@ namespace Kicker.Controllers
             if (TEAMS_DB.TryRemove(name, out Team _))
             {
                 // return 204;
-                return new HttpResponseMessage(HttpStatusCode.Conflict);
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
             }
             else
             {
@@ -124,7 +124,7 @@ namespace Kicker.Controllers
             if (PLAYERS_DB.TryRemove(name, out Player _))
             {
                 // return 204;
-                return new HttpResponseMessage(HttpStatusCode.Conflict);
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
             }
             else
             {
