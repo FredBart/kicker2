@@ -24,29 +24,33 @@ namespace Kicker.Controllers
 
         // csv is mainly a placeholder. I do not yet know how to properly return all the relevant information.
         [HttpGet("[action]")]
-        static HttpResponseMessage GetTeams(string csv)
+        public HttpResponseMessage GetTeams(string csv)
         {
             csv = String.Join(",", TEAMS_DB.Keys);
             // return 202;
-            return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+            return new HttpResponseMessage(HttpStatusCode.Accepted);
         }
 
-        static HttpResponseMessage GetPlayers(string csv)
+
+        [HttpGet("[action]")]
+        public HttpResponseMessage GetPlayers()
         {
-            csv = String.Join(",", PLAYERS_DB.Keys);
-            // return 202;
-            return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+            string csv = "test"; //String.Join(",", PLAYERS_DB.Keys);
+            var resp = new HttpResponseMessage(HttpStatusCode.Accepted);
+            resp.Content = new StringContent(csv, System.Text.Encoding.UTF8, "text/plain");
+            return resp;
+            // return new HttpResponseMessage(HttpStatusCode.Accepted);
         }
 
 
         [HttpGet("[action]/{name}")]
-        static HttpResponseMessage GetPlayersOfTeam(string name, string csv)
+        public HttpResponseMessage GetPlayersOfTeam(string name, string csv)
         {
             if (TEAMS_DB.TryGetValue(name, out Team team))
             {
                 csv = String.Join(",", team.members);
                 // return 202;
-                return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+                return new HttpResponseMessage(HttpStatusCode.Accepted);     
             }
             else
             {
@@ -55,7 +59,7 @@ namespace Kicker.Controllers
             }
         }
 
-        static HttpResponseMessage GetTeamsOfPlayers(string name, string csv)
+        public HttpResponseMessage GetTeamsOfPlayers(string name, string csv)
         {
             if (PLAYERS_DB.TryGetValue(name, out Player player))
             {
@@ -88,7 +92,8 @@ namespace Kicker.Controllers
             }
         }
 
-        static HttpResponseMessage PostPlayer(string name)
+        [HttpPost("[action]/{name}")]
+        public HttpResponseMessage PostPlayer(string name)
         {
             if (!PLAYERS_DB.TryAdd(name, new Player(name)))
             {
@@ -105,7 +110,7 @@ namespace Kicker.Controllers
 
 
         [HttpDelete("[action]/{name}")]
-        static HttpResponseMessage DeleteTeam(string name)
+        public HttpResponseMessage DeleteTeam(string name)
         {
             if (TEAMS_DB.TryRemove(name, out Team _))
             {
@@ -119,7 +124,7 @@ namespace Kicker.Controllers
             }
         }
 
-        static HttpResponseMessage DeletePlayer(string name)
+        public HttpResponseMessage DeletePlayer(string name)
         {
             if (PLAYERS_DB.TryRemove(name, out Player _))
             {
@@ -136,7 +141,7 @@ namespace Kicker.Controllers
 
         // /yourPath?teamName=a&playerName=b
         [HttpPut("[action]/{teamName,playerName}")]
-        static HttpResponseMessage AddPlayerToTeam(string teamName, string playerName)
+        public HttpResponseMessage AddPlayerToTeam(string teamName, string playerName)
         {
             if (PLAYERS_DB.TryGetValue(playerName, out Player player)
              && TEAMS_DB.TryGetValue(teamName, out Team team))
@@ -160,7 +165,7 @@ namespace Kicker.Controllers
         }
 
         [HttpDelete("[action]/{teamName,playerName}")]
-        static HttpResponseMessage RemovePlayerFromTeam(string teamName, string playerName)
+        public HttpResponseMessage RemovePlayerFromTeam(string teamName, string playerName)
         {
             if (PLAYERS_DB.TryGetValue(playerName, out Player player)
              && TEAMS_DB.TryGetValue(teamName, out Team team))
@@ -183,62 +188,6 @@ namespace Kicker.Controllers
             }
         }
 
-
-
-
-
-        // The below part of this class is only for testing purpose.
-        private static string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        [HttpGet("[action]")]
-        public IEnumerable<WeatherForecast> WeatherForecasts()
-        {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            });
-        }
-
-        // fetch('api/Kicker/WeatherForecasts/20', {method : 'POST'}) in typescript sets number to 20.
-        [HttpPost("[action]/{number}")]
-        public IEnumerable<WeatherForecast> WeatherForecasts(int number)
-        {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
-                TemperatureC = number,
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            });
-        }
-
-        // http://localhost:5000/api/Kicker/testString/text returns 'test text'
-        [HttpGet("[action]/{id}")]
-        public string testString(string id)
-        {
-            return "test " + id;
-        }
-
-        public class WeatherForecast
-        {
-            public string DateFormatted { get; set; }
-            public int TemperatureC { get; set; }
-            public string Summary { get; set; }
-
-            public int TemperatureF
-            {
-                get
-                {
-                    return 32 + (int)(TemperatureC / 0.5556);
-                }
-            }
-        }
 
         static int Match(Team t1, Team t2, int goalst1, int goalst2)
         {
