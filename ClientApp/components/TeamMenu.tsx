@@ -9,6 +9,8 @@ interface AttributeHandler {
     alertColour: any;
     teamName: any;
     playerName: any;
+    playerList: string[];
+    teamList: string[];
 }
 
 
@@ -21,7 +23,9 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             displayAlert: false,
             alertColour: 0,
             teamName: "select team",
-            playerName: "select player"
+            playerName: "select player",
+            playerList: [],
+            teamList: []
         };
 
         this.handleTeamNameChange = this.handleTeamNameChange.bind(this);
@@ -31,10 +35,16 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.deleteTeam = this.deleteTeam.bind(this);
     }
 
-    
-    public render() {
-        return <div>
 
+    public render() {
+        const data = [{ "name": "test1" }, { "name": "test2" }];
+        this.callApiGET("GetPlayers", 202, "success", "failure")
+        // this.setState({})
+
+
+
+        return <div>
+            
             {this.state.displayAlert
                 ? <div style={{ backgroundColor: this.state.alertColour }}>
                     <p>{this.state.alertString}</p>
@@ -43,7 +53,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             <form onSubmit={this.postTeam}>
                 <label>
                     Add Team:{'\u00A0'}{'\u00A0'}{'\u00A0'}
-                     <input type="text" value={this.state.teamName} onChange={this.handleTeamNameChange} />
+                    <input type="text" value={this.state.teamName} onChange={this.handleTeamNameChange} />
                 </label>
                 <input type="submit" value="Submit" />
             </form>
@@ -51,14 +61,14 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             <form onSubmit={this.postPlayer}>
                 <label>
                     Add Player:{'\u00A0'}
-                     <input type="text" value={this.state.playerName} onChange={this.handlePlayerNameChange} />
+                    <input type="text" value={this.state.playerName} onChange={this.handlePlayerNameChange} />
                 </label>
                 <input type="submit" value="Submit" />
             </form>
 
             <p>This is a simple test of a React component.</p>
 
-            <button onClick={() => { this.postPlayer("test2") }}>PostPlayer "test2"</button>
+            <button onClick={() => { this.getPlayers() }}> GetPlayers </button>
 
 
 
@@ -78,9 +88,19 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                 </label>
                 <input type="submit" value="Submit" />
             </form>
+            
+            <h1>Player List</h1>
+            {this.state.playerList.map(function (idx) {
+                return (<li key={idx}>{idx}</li>)
+            })}
+            
+            <h1>Team List</h1>
+            {this.state.teamList.map(function (idx) {
+                return (<li key={idx}>{idx}</li>)
+            })}
 
+        </div>
 
-        </div>;
     }
 
     changeTheBool() {
@@ -104,7 +124,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     }
 
     deleteTeam(event: any) {
-        { if (window.confirm("Are you sure you wish to delete team "+ this.state.teamName+"?")) this.callAPI("DeleteTeam", "DELETE", this.state.teamName, 204, 404, "Team " + this.state.teamName + " was deleted.", "Team " + this.state.teamName + " was not found.") }
+        { if (window.confirm("Are you sure you wish to delete team " + this.state.teamName + "?")) this.callAPI("DeleteTeam", "DELETE", this.state.teamName, 204, 404, "Team " + this.state.teamName + " was deleted.", "Team " + this.state.teamName + " was not found.") }
         event.preventDefault();
     }
 
@@ -113,6 +133,10 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         event.preventDefault();
     }
 
+    getPlayers() {
+        // this.callAPI("GetPlayers", "GET", "", 202, 0, "success", "failure")
+        this.callApiGET("GetPlayers", 202, "success", "failure")
+    }
 
     // deleteTeam(teamName: string) {
     //     this.callAPI("DeleteTeam", "DELETE", teamName, 204, 404, "Team " + teamName + " was deleted.", "Team " + teamName + " was not found.")
@@ -136,6 +160,25 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             });
     }
 
+    callApiGET(func: string, expectedValue: number, successMessage: string, failureMessage: string) {
+        return fetch("api/Kicker/" + func, {
+            method: "GET"
+        }).then(
+            response => response.text()
+        ).then(
+            text => {
+                console.log(text)
+                this.setState({playerList: text.split(',')})
+                // this.handleText(text, expectedValue, failureValue, successMessage, failureMessage)
+            }
+        )
+            .catch(error => {
+                console.error(error)
+                alert(error)
+                return 400
+            });
+    }
+
     handleJson(json: any, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string) {
         if (json.statusCode === expectedValue) {
             this.inPageAlert(successMessage, "success")
@@ -144,7 +187,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         } else {
             this.inPageAlert("Unknown error", "warning")
         }
-        // console.log(json.statusCode)
+        console.log(json.content)
     }
 
 

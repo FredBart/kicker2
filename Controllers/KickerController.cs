@@ -24,53 +24,77 @@ namespace Kicker.Controllers
 
         // csv is mainly a placeholder. I do not yet know how to properly return all the relevant information.
         [HttpGet("[action]")]
-        public HttpResponseMessage GetTeams(string csv)
+        public ContentResult GetTeams(string csv)
         {
             csv = String.Join(",", TEAMS_DB.Keys);
-            // return 202;
-            return new HttpResponseMessage(HttpStatusCode.Accepted);
+            return new ContentResult
+            {
+                Content = csv,
+                ContentType = "text/csv",
+                StatusCode = 200
+            };
         }
 
 
         [HttpGet("[action]")]
-        public HttpResponseMessage GetPlayers()
+        public ContentResult GetPlayers()
         {
-            string csv = "test"; //String.Join(",", PLAYERS_DB.Keys);
-            var resp = new HttpResponseMessage(HttpStatusCode.Accepted);
-            resp.Content = new StringContent(csv, System.Text.Encoding.UTF8, "text/plain");
-            return resp;
+            string csv = String.Join(",", PLAYERS_DB.Keys);
+            return new ContentResult
+            {
+                Content = csv,
+                ContentType = "text/csv",
+                StatusCode = 200
+            };
             // return new HttpResponseMessage(HttpStatusCode.Accepted);
         }
 
 
+
         [HttpGet("[action]/{name}")]
-        public HttpResponseMessage GetPlayersOfTeam(string name, string csv)
+        public ContentResult GetPlayersOfTeam(string name, string csv)
         {
             if (TEAMS_DB.TryGetValue(name, out Team team))
             {
                 csv = String.Join(",", team.members);
-                // return 202;
-                return new HttpResponseMessage(HttpStatusCode.Accepted);     
+                return new ContentResult
+                {
+                    Content = csv,
+                    ContentType = "text/csv",
+                    StatusCode = 200
+                };
             }
             else
             {
-                // return 409;
-                return new HttpResponseMessage(HttpStatusCode.Conflict);
+                return new ContentResult
+                {
+                    Content = "",
+                    ContentType = "text/plain",
+                    StatusCode = 409
+                };
             }
         }
 
-        public HttpResponseMessage GetTeamsOfPlayers(string name, string csv)
+        public ContentResult GetTeamsOfPlayers(string name, string csv)
         {
             if (PLAYERS_DB.TryGetValue(name, out Player player))
             {
                 csv = String.Join(",", player.teams);
-                // return 202;
-                return new HttpResponseMessage(HttpStatusCode.Accepted);                // What is better than 202 here?
+                return new ContentResult
+                {
+                    Content = csv,
+                    ContentType = "text/csv",
+                    StatusCode = 200
+                };
             }
             else
             {
-                // return 409;
-                return new HttpResponseMessage(HttpStatusCode.Conflict);
+                return new ContentResult
+                {
+                    Content = "",
+                    ContentType = "text/plain",
+                    StatusCode = 409
+                };
             }
         }
 
