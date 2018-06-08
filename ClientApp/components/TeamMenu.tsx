@@ -33,18 +33,17 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.postTeam = this.postTeam.bind(this);
         this.postPlayer = this.postPlayer.bind(this);
         this.deleteTeam = this.deleteTeam.bind(this);
+        this.updateLists()
     }
 
 
     public render() {
         const data = [{ "name": "test1" }, { "name": "test2" }];
-        this.callApiGET("GetPlayers", 202, "success", "failure")
-        // this.setState({})
 
 
 
         return <div>
-            
+
             {this.state.displayAlert
                 ? <div style={{ backgroundColor: this.state.alertColour }}>
                     <p>{this.state.alertString}</p>
@@ -88,12 +87,12 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                 </label>
                 <input type="submit" value="Submit" />
             </form>
-            
+
             <h1>Player List</h1>
             {this.state.playerList.map(function (idx) {
                 return (<li key={idx}>{idx}</li>)
             })}
-            
+
             <h1>Team List</h1>
             {this.state.teamList.map(function (idx) {
                 return (<li key={idx}>{idx}</li>)
@@ -117,19 +116,26 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.setState({ playerName: event.target.value });
     }
 
+    updateLists(){
+        this.callApiGET("GetPlayers", 200, "success", "failure")
+        this.callApiGET("GetTeams", 200, "success", "failure")
+    }
 
     postTeam(event: any) {
         this.callAPI("PostTeam", "POST", this.state.teamName, 201, 409, "Team " + this.state.teamName + " was created.", "Team " + this.state.teamName + " already exists.")
+        this.updateLists()
         event.preventDefault();
     }
 
     deleteTeam(event: any) {
         { if (window.confirm("Are you sure you wish to delete team " + this.state.teamName + "?")) this.callAPI("DeleteTeam", "DELETE", this.state.teamName, 204, 404, "Team " + this.state.teamName + " was deleted.", "Team " + this.state.teamName + " was not found.") }
+        this.updateLists()
         event.preventDefault();
     }
 
     postPlayer(event: any) {
         this.callAPI("PostPlayer", "POST", this.state.playerName, 201, 409, "Player " + this.state.playerName + " was created.", "Player " + this.state.playerName + " already exists.")
+        this.updateLists()
         event.preventDefault();
     }
 
@@ -167,16 +173,31 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             response => response.text()
         ).then(
             text => {
-                console.log(text)
-                this.setState({playerList: text.split(',')})
+                // console.log(text)
+                // this.setState({playerList: text.split(',')})
                 // this.handleText(text, expectedValue, failureValue, successMessage, failureMessage)
+                this.handleCSV(text, func)
+                return text.split(',')
             }
         )
             .catch(error => {
                 console.error(error)
                 alert(error)
-                return 400
+                return ["error"]
             });
+    }
+
+    handleCSV(csv: string, urlFragment: string) {
+        switch (urlFragment) {
+            case "GetPlayers":
+                this.setState({ playerList: csv.split(',') })
+                break;
+            case "GetTeams":
+                this.setState({ teamList: csv.split(',') })
+                break;
+            default:
+                console.log("No list specification to modify")
+        }
     }
 
     handleJson(json: any, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string) {
