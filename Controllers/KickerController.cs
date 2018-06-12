@@ -148,6 +148,8 @@ namespace Kicker.Controllers
             }
         }
 
+
+        [HttpDelete("[action]/{name}")]
         public HttpResponseMessage DeletePlayer(string name)
         {
             if (PLAYERS_DB.TryRemove(name, out Player _))

@@ -26,18 +26,21 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             alertColour: 0,
             teamPostName: "",
             playerPostName: "",
-            playerSelectionName: "",
-            teamSelectionName: "",
+            playerSelectionName: "---",
+            teamSelectionName: "---",
             playerList: [],
             teamList: []
         };
 
         this.handleTeamNameChange = this.handleTeamNameChange.bind(this);
         this.handlePlayerNameChange = this.handlePlayerNameChange.bind(this);
+        this.handleTeamSelectionName = this.handleTeamSelectionName.bind(this);
+        this.handlePlayerSelectionName = this.handlePlayerSelectionName.bind(this);
         this.postTeam = this.postTeam.bind(this);
         this.postPlayer = this.postPlayer.bind(this);
-        this.deleteTeam = this.deleteTeam.bind(this);
-        this.deletePlayer = this.deletePlayer.bind(this);
+        // this.deleteTeam = this.deleteTeam.bind(this);
+        // this.deletePlayer = this.deletePlayer.bind(this);
+        // this.handlePlayer = this.handlePlayer.bind(this, null);
         this.updateLists()
     }
 
@@ -70,35 +73,56 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             {/* <button onClick={() => { this.getPlayers() }}> GetPlayers </button> */}
 
 
-            <form onSubmit={this.deleteTeam}>
+            <div>
+                {/* <form onSubmit={this.deleteTeam}> */}
                 <label>
-                    Team List:
+                    Teams:
                     <div style={{ overflow: 'auto', maxHeight: 1200 }}>
                         <select value={this.state.teamSelectionName}
-                            onChange={this.handleTeamNameChangeOnSelection}>
+                            onChange={this.handleTeamSelectionName}>
+                            <option>---</option>
                             {this.state.teamList.map(function (idx) {
                                 return (<option value={idx}>{idx}</option>)
                             })}
                         </select>
                     </div>
                 </label>
-                <input type="submit" value="Delete" />
-            </form>
+                {/* <input type="submit" value="Delete" />
+            </form> */}
 
-            <form onSubmit={this.deletePlayer}>
+                <button onClick={() => { if(this.state.teamSelectionName != "---") this.deleteTeam(this.state.teamSelectionName) }}>
+                    Delete Team
+            </button>
+            </div>
+
+
+
+
+            <div>
+                {/* <form onSubmit={this.deletePlayer}> */}
                 <label>
-                    Player List:
+                    Players:
                     <div style={{ overflow: 'auto', maxHeight: 1200 }}>
                         <select value={this.state.playerSelectionName}
-                            onChange={this.handlePlayerNameChangeOnSelection}>
+                            onChange={this.handlePlayerSelectionName}>
+                            <option>---</option>
                             {this.state.playerList.map(function (idx) {
                                 return (<option value={idx}>{idx}</option>)
                             })}
                         </select>
                     </div>
                 </label>
-                <input type="submit" value="Delete" />
-            </form>
+                {/* <input type="submit" value="Delete" />
+            </form> */}
+
+
+                <button onClick={() => { if(this.state.playerSelectionName != "---") this.deletePlayer(this.state.playerSelectionName) }}>
+                    Delete Player
+            </button>
+                {/* <button onClick={() => { this.getPlayers() }}> GetPlayers </button> */}
+            </div>
+
+
 
 
 
@@ -106,11 +130,16 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
 
     }
 
-    changeTheBool() {
-        this.setState({
-            displayBool: !this.state.displayBool
-        });
-    }
+
+    // handlePlayer(event: any, method: string){
+    //     switch(method){
+    //         case "delete":
+    //             this.deletePlayer(event)
+    //             break;
+    //         default:
+    //          this.inPageAlert("No method specified", "warning")
+    //     }
+    // }
 
     handleTeamNameChange(event: any) {
         this.setState({ teamPostName: event.target.value });
@@ -120,48 +149,79 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.setState({ playerPostName: event.target.value });
     }
 
-    handlePlayerNameChangeOnSelection(event: any) {
+    handlePlayerSelectionName(event: any) {
         this.setState({ playerSelectionName: event.target.value });
     }
 
-    
-    handleTeamNameChangeOnSelection(event: any) {
+    handleTeamSelectionName(event: any) {
         this.setState({ teamSelectionName: event.target.value });
     }
-    
+
     updateLists() {
         this.callApiGET("GetPlayers", 200, "success", "failure")
         this.callApiGET("GetTeams", 200, "success", "failure")
     }
 
     postTeam(event: any) {
-        this.callAPI("PostTeam", "POST", this.state.teamPostName, 201, 409, "Team " + this.state.teamPostName + " was created.", "Team " + this.state.teamPostName + " already exists.")
-        this.updateLists()
-        event.preventDefault();
-    }
-
-    deleteTeam(event: any) {
-        { if (window.confirm("Are you sure you wish to delete team " + this.state.teamPostName + "?")) this.callAPI("DeleteTeam", "DELETE", this.state.teamPostName, 204, 404, "Team " + this.state.teamPostName + " was deleted.", "Team " + this.state.teamPostName + " was not found.") }
-        this.updateLists()
-        event.preventDefault();
-    }
-
-    deletePlayer(event: any) {
-        { if (window.confirm("Are you sure you wish to delete player " + this.state.playerPostName + "?")) this.callAPI("DeletePlayer", "DELETE", this.state.playerPostName, 204, 404, "Player " + this.state.playerPostName + " was deleted.", "Player " + this.state.playerPostName + " was not found.") }
+        this.callAPI(
+            "PostTeam",
+            "POST",
+            this.state.teamPostName,
+            201,
+            409,
+            "Team " + this.state.teamPostName + " was created.",
+            "Team " + this.state.teamPostName + " already exists.")
         this.updateLists()
         event.preventDefault();
     }
 
     postPlayer(event: any) {
-        this.callAPI("PostPlayer", "POST", this.state.playerPostName, 201, 409, "Player " + this.state.playerPostName + " was created.", "Player " + this.state.playerPostName + " already exists.")
+        this.callAPI(
+            "PostPlayer",
+            "POST",
+            this.state.playerPostName,
+            201,
+            409,
+            "Player " + this.state.playerPostName + " was created.",
+            "Player " + this.state.playerPostName + " already exists.")
         this.updateLists()
         event.preventDefault();
     }
 
-    getPlayers() {
-        // this.callAPI("GetPlayers", "GET", "", 202, 0, "success", "failure")
-        this.callApiGET("GetPlayers", 202, "success", "failure")
+    deleteTeam(teamName: string) {
+        {
+            if (window.confirm("Are you sure you wish to delete team " + teamName + "?"))
+                this.callAPI(
+                    "DeleteTeam",
+                    "DELETE",
+                    teamName,
+                    204,
+                    404,
+                    "Team " + teamName + " was deleted.",
+                    "Team " + teamName + " was not found.")
+        }
+        this.updateLists()
     }
+
+    deletePlayer(playerName: string) {
+        {
+            if (window.confirm("Are you sure you wish to delete player " + playerName + "?"))
+                this.callAPI(
+                    "DeletePlayer",
+                    "DELETE",
+                    playerName,
+                    204,
+                    404,
+                    "Player " + playerName + " was deleted.",
+                    "Player " + playerName + " was not found.")
+        }
+        this.updateLists()
+    }
+
+    // getPlayers() {
+    //     // this.callAPI("GetPlayers", "GET", "", 202, 0, "success", "failure")
+    //     this.callApiGET("GetPlayers", 202, "success", "failure")
+    // }
 
     // deleteTeam(teamName: string) {
     //     this.callAPI("DeleteTeam", "DELETE", teamName, 204, 404, "Team " + teamName + " was deleted.", "Team " + teamName + " was not found.")
