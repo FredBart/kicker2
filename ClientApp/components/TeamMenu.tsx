@@ -7,8 +7,10 @@ interface AttributeHandler {
     alertString: string;
     displayAlert: boolean;
     alertColour: any;
-    teamName: any;
-    playerName: any;
+    teamPostName: string;
+    playerPostName: string;
+    playerSelectionName: string;
+    teamSelectionName: string;
     playerList: string[];
     teamList: string[];
 }
@@ -22,8 +24,10 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             alertString: "",
             displayAlert: false,
             alertColour: 0,
-            teamName: "select team",
-            playerName: "select player",
+            teamPostName: "",
+            playerPostName: "",
+            playerSelectionName: "",
+            teamSelectionName: "",
             playerList: [],
             teamList: []
         };
@@ -33,14 +37,12 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.postTeam = this.postTeam.bind(this);
         this.postPlayer = this.postPlayer.bind(this);
         this.deleteTeam = this.deleteTeam.bind(this);
+        this.deletePlayer = this.deletePlayer.bind(this);
         this.updateLists()
     }
 
 
     public render() {
-        const data = [{ "name": "test1" }, { "name": "test2" }];
-
-
 
         return <div>
 
@@ -52,7 +54,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             <form onSubmit={this.postTeam}>
                 <label>
                     Add Team:{'\u00A0'}{'\u00A0'}{'\u00A0'}
-                    <input type="text" value={this.state.teamName} onChange={this.handleTeamNameChange} />
+                    <input type="text" value={this.state.teamPostName} onChange={this.handleTeamNameChange} />
                 </label>
                 <input type="submit" value="Submit" />
             </form>
@@ -60,43 +62,45 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             <form onSubmit={this.postPlayer}>
                 <label>
                     Add Player:{'\u00A0'}
-                    <input type="text" value={this.state.playerName} onChange={this.handlePlayerNameChange} />
+                    <input type="text" value={this.state.playerPostName} onChange={this.handlePlayerNameChange} />
                 </label>
                 <input type="submit" value="Submit" />
             </form>
 
-            <p>This is a simple test of a React component.</p>
-
-            <button onClick={() => { this.getPlayers() }}> GetPlayers </button>
+            {/* <button onClick={() => { this.getPlayers() }}> GetPlayers </button> */}
 
 
-
-            {/* For now, it is only possible to delete teams with the names of the following fruits. */}
             <form onSubmit={this.deleteTeam}>
                 <label>
-                    Delete Team:
-                    <div style={{ overflow: 'auto', maxHeight: 400 }}>
-                        <select value={this.state.teamName}
-                            onChange={this.handleTeamNameChange}>
-                            <option value="grapefruit">Grapefruit</option>
-                            <option value="lime">Lime</option>
-                            <option value="coconut">Coconut</option>
-                            <option value="mango">Mango</option>
+                    Team List:
+                    <div style={{ overflow: 'auto', maxHeight: 1200 }}>
+                        <select value={this.state.teamSelectionName}
+                            onChange={this.handleTeamNameChangeOnSelection}>
+                            {this.state.teamList.map(function (idx) {
+                                return (<option value={idx}>{idx}</option>)
+                            })}
                         </select>
                     </div>
                 </label>
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Delete" />
             </form>
 
-            <h1>Player List</h1>
-            {this.state.playerList.map(function (idx) {
-                return (<li key={idx}>{idx}</li>)
-            })}
+            <form onSubmit={this.deletePlayer}>
+                <label>
+                    Player List:
+                    <div style={{ overflow: 'auto', maxHeight: 1200 }}>
+                        <select value={this.state.playerSelectionName}
+                            onChange={this.handlePlayerNameChangeOnSelection}>
+                            {this.state.playerList.map(function (idx) {
+                                return (<option value={idx}>{idx}</option>)
+                            })}
+                        </select>
+                    </div>
+                </label>
+                <input type="submit" value="Delete" />
+            </form>
 
-            <h1>Team List</h1>
-            {this.state.teamList.map(function (idx) {
-                return (<li key={idx}>{idx}</li>)
-            })}
+
 
         </div>
 
@@ -109,32 +113,47 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     }
 
     handleTeamNameChange(event: any) {
-        this.setState({ teamName: event.target.value });
+        this.setState({ teamPostName: event.target.value });
     }
 
     handlePlayerNameChange(event: any) {
-        this.setState({ playerName: event.target.value });
+        this.setState({ playerPostName: event.target.value });
     }
 
-    updateLists(){
+    handlePlayerNameChangeOnSelection(event: any) {
+        this.setState({ playerSelectionName: event.target.value });
+    }
+
+    
+    handleTeamNameChangeOnSelection(event: any) {
+        this.setState({ teamSelectionName: event.target.value });
+    }
+    
+    updateLists() {
         this.callApiGET("GetPlayers", 200, "success", "failure")
         this.callApiGET("GetTeams", 200, "success", "failure")
     }
 
     postTeam(event: any) {
-        this.callAPI("PostTeam", "POST", this.state.teamName, 201, 409, "Team " + this.state.teamName + " was created.", "Team " + this.state.teamName + " already exists.")
+        this.callAPI("PostTeam", "POST", this.state.teamPostName, 201, 409, "Team " + this.state.teamPostName + " was created.", "Team " + this.state.teamPostName + " already exists.")
         this.updateLists()
         event.preventDefault();
     }
 
     deleteTeam(event: any) {
-        { if (window.confirm("Are you sure you wish to delete team " + this.state.teamName + "?")) this.callAPI("DeleteTeam", "DELETE", this.state.teamName, 204, 404, "Team " + this.state.teamName + " was deleted.", "Team " + this.state.teamName + " was not found.") }
+        { if (window.confirm("Are you sure you wish to delete team " + this.state.teamPostName + "?")) this.callAPI("DeleteTeam", "DELETE", this.state.teamPostName, 204, 404, "Team " + this.state.teamPostName + " was deleted.", "Team " + this.state.teamPostName + " was not found.") }
+        this.updateLists()
+        event.preventDefault();
+    }
+
+    deletePlayer(event: any) {
+        { if (window.confirm("Are you sure you wish to delete player " + this.state.playerPostName + "?")) this.callAPI("DeletePlayer", "DELETE", this.state.playerPostName, 204, 404, "Player " + this.state.playerPostName + " was deleted.", "Player " + this.state.playerPostName + " was not found.") }
         this.updateLists()
         event.preventDefault();
     }
 
     postPlayer(event: any) {
-        this.callAPI("PostPlayer", "POST", this.state.playerName, 201, 409, "Player " + this.state.playerName + " was created.", "Player " + this.state.playerName + " already exists.")
+        this.callAPI("PostPlayer", "POST", this.state.playerPostName, 201, 409, "Player " + this.state.playerPostName + " was created.", "Player " + this.state.playerPostName + " already exists.")
         this.updateLists()
         event.preventDefault();
     }
