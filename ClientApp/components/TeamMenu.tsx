@@ -90,7 +90,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                 {/* <input type="submit" value="Delete" />
             </form> */}
 
-                <button onClick={() => { if(this.state.teamSelectionName != "---") this.deleteTeam(this.state.teamSelectionName) }}>
+                <button onClick={() => { if (this.state.teamSelectionName != "---") this.deleteTeam(this.state.teamSelectionName) }}>
                     Delete Team
             </button>
             </div>
@@ -116,51 +116,38 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             </form> */}
 
 
-                <button onClick={() => { if(this.state.playerSelectionName != "---") this.deletePlayer(this.state.playerSelectionName) }}>
+                <button onClick={() => { if (this.state.playerSelectionName != "---") this.deletePlayer(this.state.playerSelectionName) }}>
                     Delete Player
-            </button>
-                {/* <button onClick={() => { this.getPlayers() }}> GetPlayers </button> */}
+                </button>
             </div>
 
+            <br></br>
 
 
+            <div>
 
+                <button onClick={() => {
+                    if (this.state.playerSelectionName != "---" && this.state.teamSelectionName != "---")
+                        this.addPlayerToTeam(this.state.teamSelectionName, this.state.playerSelectionName)
+                }}>
+                    Add Player to Team
+                </button>
 
+                <button onClick={() => {
+                    if (this.state.playerSelectionName != "---" && this.state.teamSelectionName != "---")
+                        this.removePlayerFromTeam(this.state.teamSelectionName, this.state.playerSelectionName)
+                }}>
+                    Remove Player from Team
+                </button>
+
+            </div>
         </div>
 
     }
 
+    // ------------------- FUNCTIONS -------------------
 
-    // handlePlayer(event: any, method: string){
-    //     switch(method){
-    //         case "delete":
-    //             this.deletePlayer(event)
-    //             break;
-    //         default:
-    //          this.inPageAlert("No method specified", "warning")
-    //     }
-    // }
-
-    handleTeamNameChange(event: any) {
-        this.setState({ teamPostName: event.target.value });
-    }
-
-    handlePlayerNameChange(event: any) {
-        this.setState({ playerPostName: event.target.value });
-    }
-
-    handlePlayerSelectionName(event: any) {
-        this.setState({ playerSelectionName: event.target.value });
-    }
-
-    handleTeamSelectionName(event: any) {
-        this.setState({ teamSelectionName: event.target.value });
-    }
-
-    updateLists() {
-        this.callApiGET("GetPlayers", 200, "success", "failure")
-        this.callApiGET("GetTeams", 200, "success", "failure")
-    }
+    // Post functions
 
     postTeam(event: any) {
         this.callAPI(
@@ -187,6 +174,8 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.updateLists()
         event.preventDefault();
     }
+
+    // Delete functions
 
     deleteTeam(teamName: string) {
         {
@@ -218,16 +207,73 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.updateLists()
     }
 
-    // getPlayers() {
-    //     // this.callAPI("GetPlayers", "GET", "", 202, 0, "success", "failure")
-    //     this.callApiGET("GetPlayers", 202, "success", "failure")
-    // }
+    // Add and remove from teams
 
-    // deleteTeam(teamName: string) {
-    //     this.callAPI("DeleteTeam", "DELETE", teamName, 204, 404, "Team " + teamName + " was deleted.", "Team " + teamName + " was not found.")
-    // }
+    addPlayerToTeam(teamName: string, playerName: string) {
+        this.callAPIMultiArgs(
+            "AddPlayerToTeam",
+            "PUT",
+            200,
+            409,
+            "Player " + playerName + " was added to team " + teamName + ".",
+            "Player " + playerName + " is already in team " + teamName + ".",
+            [
+                teamName,
+                playerName
+            ]
+        )
+        // this.updateLists()
+    }
 
 
+    removePlayerFromTeam(teamName: string, playerName: string) {
+        this.callAPIMultiArgs(
+            "RemovePlayerFromTeam",
+            "DELETE",
+            200,
+            409,
+            "Player " + playerName + " was removed from team " + teamName + ".",
+            "Player " + playerName + " is not in team " + teamName + ".",
+            [
+                teamName,
+                playerName
+            ]
+        )
+        // this.updateLists()
+    }
+
+
+
+
+    // ------------------- PARAMETER UPDATERS -------------------
+
+    // Functions to register the input in text boxes, dropdown menus etc.
+    handleTeamNameChange(event: any) {
+        this.setState({ teamPostName: event.target.value });
+    }
+
+    handlePlayerNameChange(event: any) {
+        this.setState({ playerPostName: event.target.value });
+    }
+
+    handlePlayerSelectionName(event: any) {
+        this.setState({ playerSelectionName: event.target.value });
+    }
+
+    handleTeamSelectionName(event: any) {
+        this.setState({ teamSelectionName: event.target.value });
+    }
+
+    // Function to update the visible content of player and team lists
+    updateLists() {
+        this.callApiGET("GetPlayers", 200, "success", "failure")
+        this.callApiGET("GetTeams", 200, "success", "failure")
+    }
+
+
+    // ------------------- API CALLS -------------------
+
+    // Most basic API call, not suited for GET method
     callAPI(func: string, method: string, arg: string, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string) {
         return fetch("api/Kicker/" + func + "/" + arg, {
             method
@@ -245,6 +291,32 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             });
     }
 
+    // API call with multiple ?something=anythign statements connected via &'s
+    callAPIMultiArgs(func: string, method: string, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string, args: string[]) {
+        let url = "api/Kicker/" + func
+        args.forEach(element => {
+            url += ("/" + element)
+        });
+        // url = url.substring(0, url.length - 1);
+        console.log(url)
+        return fetch(url, {
+            method
+        }).then(
+            response => response.json()
+        ).then(
+            json => {
+                // console.log(json)
+                this.handleJson(json, expectedValue, failureValue, successMessage, failureMessage)
+            }
+        )
+            .catch(error => {
+                console.error(error)
+                alert(error)
+                return 400
+            });
+    }
+
+    // API call for GET method, expecting a different return type than the other calls
     callApiGET(func: string, expectedValue: number, successMessage: string, failureMessage: string) {
         return fetch("api/Kicker/" + func, {
             method: "GET"
@@ -252,9 +324,6 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             response => response.text()
         ).then(
             text => {
-                // console.log(text)
-                // this.setState({playerList: text.split(',')})
-                // this.handleText(text, expectedValue, failureValue, successMessage, failureMessage)
                 this.handleCSV(text, func)
                 return text.split(',')
             }
@@ -266,6 +335,11 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             });
     }
 
+
+    // ------------------- BASIC FUNCTIONS -------------------
+
+    // Decide what to do with a CSV. There are only few CSV's to handle, and they will always be the return parameters of GET calls.
+    // So this function will execute the whole task for the return parameter.
     handleCSV(csv: string, urlFragment: string) {
         switch (urlFragment) {
             case "GetPlayers":
@@ -279,6 +353,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         }
     }
 
+    // If the return value is Json, this code creates the correct alerts depending on the status code.
     handleJson(json: any, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string) {
         if (json.statusCode === expectedValue) {
             this.inPageAlert(successMessage, "success")
@@ -287,10 +362,10 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         } else {
             this.inPageAlert("Unknown error", "warning")
         }
-        console.log(json.content)
+        // console.log(json.content)
     }
 
-
+    // Code to create alert messages within the page, to prevent too many popup windows from appearing
     inPageAlert(message: string, alertType: string) {
         this.setState({
             alertString: message,
@@ -300,11 +375,9 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         setTimeout(() => {
             this.setState({ displayAlert: false });
         }, 3000)
-        // setTimeout(function () { this.setState({ displayAlert: false }); }.bind(this), 3000);
-        // setTimeout(function () { this.setState({ displayAlert: false }); }.bind(this), 1500)
     }
 
-
+    // There can only be one in-page alert. This code handles the type of alert.
     setAlertType(alertType: string) {
         switch (alertType) {
             case "success":
@@ -322,53 +395,3 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     }
 
 }
-
-//     callAPI(func: string, meth: string, arg: string) {
-//         return fetch("api/Kicker/" + func + "/" + arg, {
-//             method: meth
-//         }).then(
-//             response => response.json()
-//         ).then(
-//             json => {
-//                 this.handleJKsonStatusCode(json)
-//                 return parseInt(json.statusCode)
-//                 // return (json.statusCode > 199 && json.statusCode < 300)
-//             }
-//         )
-//             .catch(error => {
-//                 console.error(error)
-//                 alert(error)
-//                 return 400
-//             });
-//     }
-
-
-
-//     // This function is a placeholder until I know a better solution how to handle the status codes.
-//     handleJKsonStatusCode(json: any) {
-//         console.log(json.statusCode)
-//         switch (json.statusCode) {
-//             case 200:
-//                 console.log("OK")
-//                 break;
-//             case 201:
-//                 console.log("Created")
-//                 break;
-//             case 202:
-//                 console.log("Accepted")
-//                 break;
-//             case 204:
-//                 console.log("No content")
-//                 break;
-//             case 404:
-//                 console.log("Not found")
-//                 break;
-//             case 409:
-//                 console.log("Conflict")
-//                 break;
-//             default:
-//                 console.log("Unknown status code")
-//         }
-//     }
-// }
-

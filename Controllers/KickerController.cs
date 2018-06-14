@@ -52,10 +52,11 @@ namespace Kicker.Controllers
 
 
         [HttpGet("[action]/{name}")]
-        public ContentResult GetPlayersOfTeam(string name, string csv)
+        public ContentResult GetPlayersOfTeam(string name)
         {
             if (TEAMS_DB.TryGetValue(name, out Team team))
             {
+                string csv;
                 csv = String.Join(",", team.members);
                 return new ContentResult
                 {
@@ -75,8 +76,11 @@ namespace Kicker.Controllers
             }
         }
 
-        public ContentResult GetTeamsOfPlayers(string name, string csv)
+
+        [HttpGet("[action]/{name}")]
+        public ContentResult GetTeamsOfPlayers(string name)
         {
+            string csv;
             if (PLAYERS_DB.TryGetValue(name, out Player player))
             {
                 csv = String.Join(",", player.teams);
@@ -165,8 +169,8 @@ namespace Kicker.Controllers
         }
 
 
-        // /yourPath?teamName=a&playerName=b
-        [HttpPut("[action]/{teamName,playerName}")]
+        // /AddPlayerToTeam/teamName/playerName
+        [HttpPut("[action]/{teamName}/{playerName}")]
         public HttpResponseMessage AddPlayerToTeam(string teamName, string playerName)
         {
             if (PLAYERS_DB.TryGetValue(playerName, out Player player)
@@ -190,7 +194,7 @@ namespace Kicker.Controllers
             }
         }
 
-        [HttpDelete("[action]/{teamName,playerName}")]
+        [HttpDelete("[action]/{teamName}/{playerName}")]
         public HttpResponseMessage RemovePlayerFromTeam(string teamName, string playerName)
         {
             if (PLAYERS_DB.TryGetValue(playerName, out Player player)
@@ -215,12 +219,13 @@ namespace Kicker.Controllers
         }
 
 
-        static int Match(Team t1, Team t2, int goalst1, int goalst2)
+        [HttpPut("[action]/{t1,t2,goalst1,goalst2}")]
+        public HttpResponseMessage Match(Team t1, Team t2, int goalst1, int goalst2)
         {
             if (goalst1 == goalst2)
             {
                 // No draws allowed
-                return 1;
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
             }
             if (goalst1 > goalst2)
             {
@@ -234,7 +239,7 @@ namespace Kicker.Controllers
                 t2.points += goalst2 + 10;
             }
             // Successful match
-            return 0;
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
         // Same code as in RemovePlayer => Change one, change both!
