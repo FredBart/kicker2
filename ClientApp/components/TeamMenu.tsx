@@ -1,6 +1,14 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
+class Team {
+    name: string;
+    points: number;
+    constructor(theName: string, thePoints: number) {
+        this.name = theName;
+        this.points = thePoints;
+    }
+}
 
 interface AttributeHandler {
     displayBool: boolean;
@@ -13,6 +21,7 @@ interface AttributeHandler {
     teamSelectionName: string;
     playerList: string[];
     teamList: string[];
+    ladder: Team[];
 }
 
 
@@ -29,7 +38,8 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             playerSelectionName: "---",
             teamSelectionName: "---",
             playerList: [],
-            teamList: []
+            teamList: [],
+            ladder: []
         };
 
         this.handleTeamNameChange = this.handleTeamNameChange.bind(this);
@@ -41,7 +51,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         // this.deleteTeam = this.deleteTeam.bind(this);
         // this.deletePlayer = this.deletePlayer.bind(this);
         // this.handlePlayer = this.handlePlayer.bind(this, null);
-        this.updateLists()
+        // this.updateLists()
     }
 
 
@@ -145,6 +155,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
 
     }
 
+    
     // ------------------- FUNCTIONS -------------------
 
     // Post functions
@@ -270,6 +281,10 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         this.callApiGET("GetTeams", 200, "success", "failure")
     }
 
+    updateLadder() {
+        this.callApiGET("GetLadder", 200, "success", "failure")
+    }
+
 
     // ------------------- API CALLS -------------------
 
@@ -348,10 +363,26 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             case "GetTeams":
                 this.setState({ teamList: csv.split(',') })
                 break;
+            case "GetLadder":
+                this.setState({ ladder: this.convertLadder(csv.split(',')) })
+                break;
             default:
                 console.log("No list specification to modify")
         }
     }
+
+    // Convert a list of names and numbers into a list of Team classes containing respective names and numbers
+    convertLadder(fullList: string[]){
+        var result: Team[];
+        result=[];
+        var len = fullList.length;
+        for (var _i = 0; _i < len/2; _i++) {
+            result.push(new Team(fullList[_i],Number(fullList[_i+len/2])));
+        }
+        return result;
+    }
+
+
 
     // If the return value is Json, this code creates the correct alerts depending on the status code.
     handleJson(json: any, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string) {

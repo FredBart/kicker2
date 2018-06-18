@@ -21,12 +21,25 @@ namespace Kicker.Controllers
         static ConcurrentDictionary<string, Player> PLAYERS_DB = new ConcurrentDictionary<string, Player>();
 
 
-
-        // csv is mainly a placeholder. I do not yet know how to properly return all the relevant information.
         [HttpGet("[action]")]
-        public ContentResult GetTeams(string csv)
+        public ContentResult GetLadder()
         {
-            csv = String.Join(",", TEAMS_DB.Keys);
+            string csv = String.Join(",", TEAMS_DB.Keys);
+            foreach(string key in TEAMS_DB.Keys){
+                csv += "," + TEAMS_DB[key].points;
+            }
+            return new ContentResult
+            {
+                Content = csv,
+                ContentType = "text/csv",
+                StatusCode = 200
+            };
+        }
+
+        [HttpGet("[action]")]
+        public ContentResult GetTeams()
+        {
+            string csv = String.Join(",", TEAMS_DB.Keys);
             return new ContentResult
             {
                 Content = csv,
