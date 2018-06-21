@@ -22,6 +22,7 @@ interface AttributeHandler {
     playerList: string[];
     teamList: string[];
     ladder: Team[];
+    timestamp: number;
 }
 
 
@@ -39,7 +40,8 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             teamSelectionName: "---",
             playerList: [],
             teamList: [],
-            ladder: []
+            ladder: [],
+            timestamp: 0
         };
 
         this.handleTeamNameChange = this.handleTeamNameChange.bind(this);
@@ -51,7 +53,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         // this.deleteTeam = this.deleteTeam.bind(this);
         // this.deletePlayer = this.deletePlayer.bind(this);
         // this.handlePlayer = this.handlePlayer.bind(this, null);
-        // this.updateLists()
+        this.updateLists()
     }
 
 
@@ -155,7 +157,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
 
     }
 
-    
+
     // ------------------- FUNCTIONS -------------------
 
     // Post functions
@@ -169,7 +171,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             409,
             "Team " + this.state.teamPostName + " was created.",
             "Team " + this.state.teamPostName + " already exists.")
-        this.updateLists()
+        // this.updateLists()
         event.preventDefault();
     }
 
@@ -182,7 +184,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             409,
             "Player " + this.state.playerPostName + " was created.",
             "Player " + this.state.playerPostName + " already exists.")
-        this.updateLists()
+        // this.updateLists()
         event.preventDefault();
     }
 
@@ -200,7 +202,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                     "Team " + teamName + " was deleted.",
                     "Team " + teamName + " was not found.")
         }
-        this.updateLists()
+        // this.updateLists()
     }
 
     deletePlayer(playerName: string) {
@@ -215,7 +217,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                     "Player " + playerName + " was deleted.",
                     "Player " + playerName + " was not found.")
         }
-        this.updateLists()
+        // this.updateLists()
     }
 
     // Add and remove from teams
@@ -297,6 +299,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         ).then(
             json => {
                 this.handleJson(json, expectedValue, failureValue, successMessage, failureMessage)
+                this.updateLists()
             }
         )
             .catch(error => {
@@ -372,12 +375,12 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     }
 
     // Convert a list of names and numbers into a list of Team classes containing respective names and numbers
-    convertLadder(fullList: string[]){
+    convertLadder(fullList: string[]) {
         var result: Team[];
-        result=[];
+        result = [];
         var len = fullList.length;
-        for (var _i = 0; _i < len/2; _i++) {
-            result.push(new Team(fullList[_i],Number(fullList[_i+len/2])));
+        for (var _i = 0; _i < len / 2; _i++) {
+            result.push(new Team(fullList[_i], Number(fullList[_i + len / 2])));
         }
         return result;
     }
@@ -400,11 +403,12 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     inPageAlert(message: string, alertType: string) {
         this.setState({
             alertString: message,
-            displayAlert: true
+            displayAlert: true,
+            timestamp: Date.now()
         })
         this.setAlertType(alertType)
         setTimeout(() => {
-            this.setState({ displayAlert: false });
+            if (Date.now() - this.state.timestamp > 2900) this.setState({ displayAlert: false });
         }, 3000)
     }
 
