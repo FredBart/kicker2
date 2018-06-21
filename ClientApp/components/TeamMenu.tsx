@@ -163,27 +163,35 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     // Post functions
 
     postTeam(event: any) {
-        this.callAPI(
-            "PostTeam",
-            "POST",
-            this.state.teamPostName,
-            201,
-            409,
-            "Team " + this.state.teamPostName + " was created.",
-            "Team " + this.state.teamPostName + " already exists.")
+        if (this.validate(this.state.teamPostName)) {
+            this.callAPI(
+                "PostTeam",
+                "POST",
+                this.state.teamPostName,
+                201,
+                409,
+                "Team " + this.state.teamPostName + " was created.",
+                "Team " + this.state.teamPostName + " already exists.")
+        } else {
+            this.inPageAlert("Team name must consit out of 3-16 letters and/or numbers. Spaces are only allowed between the words.", "warning")
+        }
         // this.updateLists()
         event.preventDefault();
     }
 
     postPlayer(event: any) {
-        this.callAPI(
-            "PostPlayer",
-            "POST",
-            this.state.playerPostName,
-            201,
-            409,
-            "Player " + this.state.playerPostName + " was created.",
-            "Player " + this.state.playerPostName + " already exists.")
+        if (this.validate(this.state.playerPostName)) {
+            this.callAPI(
+                "PostPlayer",
+                "POST",
+                this.state.playerPostName,
+                201,
+                409,
+                "Player " + this.state.playerPostName + " was created.",
+                "Player " + this.state.playerPostName + " already exists.")
+        } else {
+            this.inPageAlert("Player name must consit out of 3-16 letters and/or numbers. Spaces are only allowed between the words.", "warning")
+        }
         // this.updateLists()
         event.preventDefault();
     }
@@ -385,6 +393,17 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         return result;
     }
 
+
+    // Validate inputs for names of teams and players
+    // Names must have 3-16 characters and is only allowed to have single spaces between the words.
+    validate(name: string) {
+        if (
+            name.length > 16
+            || name.length < 3
+            || !name.match("^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$")
+        ) return false
+        else return true
+    }
 
 
     // If the return value is Json, this code creates the correct alerts depending on the status code.
