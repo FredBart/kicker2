@@ -158,6 +158,22 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                     Ranking to Console
                 </button>
 
+
+                {/* Ladder */}
+
+                <div style={{ overflow: 'auto' }}>
+                    <table id="myTable">
+                        {this.state.ladder.map(function (idx) {
+                            // return (<option value={idx.points + " " + idx.name}>{idx}</option>)
+                            return <tr>
+                                <td> {idx.name}</td>
+                                <td> {idx.points}</td>
+                            </tr>
+
+                        })}
+                    </table>
+                </div>
+
             </div>
         </div>
 
@@ -295,6 +311,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     updateLists() {
         this.callApiGET("GetPlayers", 200, "success", "failure")
         this.callApiGET("GetTeams", 200, "success", "failure")
+        this.callApiGET("GetLadder", 200, "success", "failure")             // This won't be necessary for this page, later
     }
 
     updateLadder() {
@@ -381,10 +398,11 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                 this.setState({ teamList: csv.split(',') })
                 break;
             case "GetLadder":
+                // this.setState({ ladder: csv.split(',') })
                 console.log(csv)
-                // this.setState({ 
-                //     ladder: this.convertLadder(csv.split(',')) 
-                // })
+                this.setState({
+                    ladder: this.convertLadder(csv.split(','))
+                })
                 break;
             default:
                 console.log("No list specification to modify")
@@ -396,8 +414,8 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         var result: Team[];
         result = [];
         var len = fullList.length;
-        for (var _i = 0; _i < len / 2; _i++) {
-            result.push(new Team(fullList[_i], Number(fullList[_i + len / 2])));
+        for (var _i = 0; _i < len ; _i += 2) {
+            result.push(new Team(fullList[_i], Number(fullList[_i + 1])));
         }
         return result;
     }
