@@ -64,7 +64,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             {this.state.displayAlert
                 ? <div style={{ backgroundColor: this.state.alertColour }}>
                     <p>{this.state.alertString}</p>
-                </div> : <div> {'\u00A0'} </div>}
+                </div> : <div> <p>{'\u00A0'}</p> </div>}
 
             <form onSubmit={this.postTeam}>
                 <label>
