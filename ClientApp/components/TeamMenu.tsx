@@ -152,6 +152,12 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                     Remove Player from Team
                 </button>
 
+                <button onClick={() => {
+                    this.callApiGET("GetLadder", 200, "success", "failure")
+                }}>
+                    Ranking to Console
+                </button>
+
             </div>
         </div>
 
@@ -375,7 +381,10 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                 this.setState({ teamList: csv.split(',') })
                 break;
             case "GetLadder":
-                this.setState({ ladder: this.convertLadder(csv.split(',')) })
+                console.log(csv)
+                // this.setState({ 
+                //     ladder: this.convertLadder(csv.split(',')) 
+                // })
                 break;
             default:
                 console.log("No list specification to modify")

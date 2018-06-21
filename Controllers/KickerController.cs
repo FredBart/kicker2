@@ -21,13 +21,32 @@ namespace Kicker.Controllers
         static ConcurrentDictionary<string, Player> PLAYERS_DB = new ConcurrentDictionary<string, Player>();
 
 
+        // [HttpGet("[action]")]
+        // public ContentResult GetLadder()
+        // {
+        //     string csv = String.Join(",", TEAMS_DB.Keys);
+        //     foreach(string key in TEAMS_DB.Keys){
+        //         csv += "," + TEAMS_DB[key].points;
+        //     }
+        //     return new ContentResult
+        //     {
+        //         Content = csv,
+        //         ContentType = "text/csv",
+        //         StatusCode = 200
+        //     };
+        // }
+
         [HttpGet("[action]")]
         public ContentResult GetLadder()
         {
-            string csv = String.Join(",", TEAMS_DB.Keys);
-            foreach(string key in TEAMS_DB.Keys){
-                csv += "," + TEAMS_DB[key].points;
+            List<Team> teamList = new List<Team>();
+            // string csv = String.Join(",", TEAMS_DB.Keys);
+            foreach (string key in TEAMS_DB.Keys)
+            {
+                teamList.Add(TEAMS_DB[key]);
             }
+            List<Team> sortedList = teamList.OrderBy(o=>o.points).ToList();
+            string csv = String.Join(",", sortedList.Select(x => (x.name.ToString() + "," + x.points.ToString())).ToArray());
             return new ContentResult
             {
                 Content = csv,
