@@ -45,7 +45,7 @@ namespace Kicker.Controllers
             {
                 teamList.Add(TEAMS_DB[key]);
             }
-            List<Team> sortedList = teamList.OrderBy(o=>o.points).ToList();
+            List<Team> sortedList = teamList.OrderBy(o => -o.points).ToList();
             string csv = String.Join(",", sortedList.Select(x => (x.name.ToString() + "," + x.points.ToString())).ToArray());
             return new ContentResult
             {
@@ -251,27 +251,32 @@ namespace Kicker.Controllers
         }
 
 
-        [HttpPut("[action]/{t1,t2,goalst1,goalst2}")]
-        public HttpResponseMessage Match(Team t1, Team t2, int goalst1, int goalst2)
+        [HttpPut("[action]/{name1}/{name2}/{goalst1}/{goalst2}")]
+        public HttpResponseMessage Match(string name1, string name2, int goalst1, int goalst2)
         {
-            if (goalst1 == goalst2)
+            if (TEAMS_DB.TryGetValue(name1, out Team t1)
+            && TEAMS_DB.TryGetValue(name2, out Team t2))
             {
-                // No draws allowed
-                return new HttpResponseMessage(HttpStatusCode.Conflict);
+                if (goalst1 == goalst2)
+                {
+                    // No draws allowed
+                    return new HttpResponseMessage(HttpStatusCode.Conflict);
+                }
+                if (goalst1 > goalst2)
+                {
+                    // Add the goals plus 5 for the loser and 10 for the winner
+                    t1.points += goalst1 + 10;
+                    t2.points += goalst2 + 5;
+                }
+                else
+                {
+                    t1.points += goalst1 + 5;
+                    t2.points += goalst2 + 10;
+                }
+                // Successful match
+                return new HttpResponseMessage(HttpStatusCode.OK);
             }
-            if (goalst1 > goalst2)
-            {
-                // Add the goals plus 5 for the loser and 10 for the winner
-                t1.points += goalst1 + 10;
-                t2.points += goalst2 + 5;
-            }
-            else
-            {
-                t1.points += goalst1 + 5;
-                t2.points += goalst2 + 10;
-            }
-            // Successful match
-            return new HttpResponseMessage(HttpStatusCode.OK);
+            else return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
         // Same code as in RemovePlayer => Change one, change both!

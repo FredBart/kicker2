@@ -23,6 +23,10 @@ interface AttributeHandler {
     teamList: string[];
     ladder: Team[];
     timestamp: number;
+    team1: string;
+    team2: string;
+    goals1: number;
+    goals2: number;
 }
 
 
@@ -41,13 +45,19 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             playerList: [],
             teamList: [],
             ladder: [],
-            timestamp: 0
+            timestamp: 0,
+            team1: "",
+            team2: "",
+            goals1: 0,
+            goals2: 0
         };
 
-        this.handleTeamNameChange = this.handleTeamNameChange.bind(this);
-        this.handlePlayerNameChange = this.handlePlayerNameChange.bind(this);
-        this.handleTeamSelectionName = this.handleTeamSelectionName.bind(this);
-        this.handlePlayerSelectionName = this.handlePlayerSelectionName.bind(this);
+
+        this.handleChange = this.handleChange.bind(this);
+        // this.handleTeamNameChange = this.handleTeamNameChange.bind(this);
+        // this.handlePlayerNameChange = this.handlePlayerNameChange.bind(this);
+        // this.handleTeamSelectionName = this.handleTeamSelectionName.bind(this);
+        // this.handlePlayerSelectionName = this.handlePlayerSelectionName.bind(this);
         this.postTeam = this.postTeam.bind(this);
         this.postPlayer = this.postPlayer.bind(this);
         // this.deleteTeam = this.deleteTeam.bind(this);
@@ -69,7 +79,8 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             <form onSubmit={this.postTeam}>
                 <label>
                     Add Team:{'\u00A0'}{'\u00A0'}{'\u00A0'}
-                    <input type="text" value={this.state.teamPostName} onChange={this.handleTeamNameChange} />
+                    {/* <input type="text" value={this.state.teamPostName} onChange={this.handleTeamNameChange} /> */}
+                    <input type="text" value={this.state.teamPostName} onChange={this.handleChange("teamPostName")} />
                 </label>
                 <input type="submit" value="Submit" />
             </form>
@@ -77,7 +88,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             <form onSubmit={this.postPlayer}>
                 <label>
                     Add Player:{'\u00A0'}
-                    <input type="text" value={this.state.playerPostName} onChange={this.handlePlayerNameChange} />
+                    <input type="text" value={this.state.playerPostName} onChange={this.handleChange("playerPostName")} />
                 </label>
                 <input type="submit" value="Submit" />
             </form>
@@ -91,7 +102,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                     Teams:
                     <div style={{ overflow: 'auto', maxHeight: 1200 }}>
                         <select value={this.state.teamSelectionName}
-                            onChange={this.handleTeamSelectionName}>
+                            onChange={this.handleChange("teamSelectionName")}>
                             <option>---</option>
                             {this.state.teamList.map(function (idx) {
                                 return (<option value={idx}>{idx}</option>)
@@ -116,7 +127,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                     Players:
                     <div style={{ overflow: 'auto', maxHeight: 1200 }}>
                         <select value={this.state.playerSelectionName}
-                            onChange={this.handlePlayerSelectionName}>
+                            onChange={this.handleChange("playerSelectionName")}>
                             <option>---</option>
                             {this.state.playerList.map(function (idx) {
                                 return (<option value={idx}>{idx}</option>)
@@ -152,14 +163,67 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                     Remove Player from Team
                 </button>
 
-                <button onClick={() => {
-                    this.callApiGET("GetLadder", 200, "success", "failure")
+                {/* <button onClick={() => {
+                    this.callApiGET("GetLadder")
                 }}>
                     Ranking to Console
-                </button>
+                </button> */}
+
 
 
                 {/* Ladder */}
+                <h1> Ranking </h1>
+
+                <div>
+                    <form>
+                        <label>
+                            Team 1:{'\u00A0'}{'\u00A0'}{'\u00A0'}
+                            <input type="text" value={this.state.team1} onChange={this.handleChange("team1")} />
+                        </label>
+                    </form>
+
+
+                    <form>
+                        <label>
+                            Team 2:{'\u00A0'}{'\u00A0'}{'\u00A0'}
+                            <input type="text" value={this.state.team2} onChange={this.handleChange("team2")} />
+                        </label>
+                    </form>
+
+
+                </div>
+
+
+                <div>
+                    <form>
+                        <label>
+                            Goals 1:{'\u00A0'}{'\u00A0'}
+                            <input type="text" value={this.state.goals1} onChange={this.handleChange("goals1")} />
+                        </label>
+                    </form>
+
+
+                    <form>
+                        <label>
+                            Goals 2:{'\u00A0'}{'\u00A0'}
+                            <input type="text" value={this.state.goals2} onChange={this.handleChange("goals2")} />
+                        </label>
+                    </form>
+
+
+                </div>
+
+
+                <button onClick={() => {
+                    if (this.isInteger(this.state.goals1) && this.isInteger(this.state.goals1))
+                        if (this.state.team1 != this.state.team2) this.match(this.state.team1, this.state.team2, this.state.goals1, this.state.goals2)
+                        else this.inPageAlert("Team 1 must be different from team 2.", "failure")
+                    else this.inPageAlert("Goals must be integer numbers.", "failure")
+                }}>
+                    Make Match
+                </button>
+
+                <h2> Score </h2>
 
                 <div style={{ overflow: 'auto' }}>
                     <table id="myTable">
@@ -167,6 +231,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
                             // return (<option value={idx.points + " " + idx.name}>{idx}</option>)
                             return <tr>
                                 <td> {idx.name}</td>
+                                <td> {'\u00A0'}{'\u00A0'} </td>
                                 <td> {idx.points}</td>
                             </tr>
 
@@ -257,9 +322,9 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             "AddPlayerToTeam",
             "PUT",
             200,
-            409,
+            [409],
             "Player " + playerName + " was added to team " + teamName + ".",
-            "Player " + playerName + " is already in team " + teamName + ".",
+            ["Player " + playerName + " is already in team " + teamName + "."],
             [
                 teamName,
                 playerName
@@ -274,9 +339,9 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
             "RemovePlayerFromTeam",
             "DELETE",
             200,
-            409,
+            [409],
             "Player " + playerName + " was removed from team " + teamName + ".",
-            "Player " + playerName + " is not in team " + teamName + ".",
+            ["Player " + playerName + " is not in team " + teamName + "."],
             [
                 teamName,
                 playerName
@@ -286,36 +351,72 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     }
 
 
+    // Put functions
+
+    match(team1: string, team2: string, goals1: number, goals2: number) {
+        {
+            if (window.confirm("Confirm: Team " + team1 + ": " + goals1 + " goals, team " + team2 + ": " + goals2 + " goals"))
+                this.callAPIMultiArgs(
+                    "Match",
+                    "PUT",
+                    200,
+                    [409, 404],
+                    "Team " + team1 + ": " + goals1 + " goals, team " + team2 + ": " + goals2 + " goals",
+                    ["No draws allowed.", "One or both teams do not exist."],
+                    [
+                        team1,
+                        team2,
+                        goals1.toString(),
+                        goals2.toString()
+                    ])
+        }
+        this.updateLists()
+    }
+
 
 
     // ------------------- PARAMETER UPDATERS -------------------
 
+
     // Functions to register the input in text boxes, dropdown menus etc.
-    handleTeamNameChange(event: any) {
-        this.setState({ teamPostName: event.target.value });
+
+    handleChange(property: keyof AttributeHandler) {
+        return (event: any) => {
+            this.setState({ [property]: event.target.value } as AttributeHandler);
+        }
     }
 
-    handlePlayerNameChange(event: any) {
-        this.setState({ playerPostName: event.target.value });
+    handleChangeNumber(property: keyof AttributeHandler) {
+        return (event: any) => {
+            this.setState({ [property]: event.target.value } as AttributeHandler);
+        }
     }
 
-    handlePlayerSelectionName(event: any) {
-        this.setState({ playerSelectionName: event.target.value });
-    }
+    // handleTeamNameChange(event: any) {
+    //     this.setState({ teamPostName: event.target.value });
+    // }
 
-    handleTeamSelectionName(event: any) {
-        this.setState({ teamSelectionName: event.target.value });
-    }
+    // handlePlayerNameChange(event: any) {
+    //     this.setState({ playerPostName: event.target.value });
+    // }
+
+    // handlePlayerSelectionName(event: any) {
+    //     this.setState({ playerSelectionName: event.target.value });
+    // }
+
+    // handleTeamSelectionName(event: any) {
+    //     this.setState({ teamSelectionName: event.target.value });
+    // }
 
     // Function to update the visible content of player and team lists
     updateLists() {
-        this.callApiGET("GetPlayers", 200, "success", "failure")
-        this.callApiGET("GetTeams", 200, "success", "failure")
-        this.callApiGET("GetLadder", 200, "success", "failure")             // This won't be necessary for this page, later
+        this.callApiGET("GetPlayers")
+        this.callApiGET("GetTeams")
+        this.callApiGET("GetLadder")             // This won't be necessary for this page, later
     }
 
     updateLadder() {
-        this.callApiGET("GetLadder", 200, "success", "failure")
+        this.callApiGET("GetLadder")
     }
 
 
@@ -341,7 +442,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     }
 
     // API call with multiple ?something=anythign statements connected via &'s
-    callAPIMultiArgs(func: string, method: string, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string, args: string[]) {
+    callAPIMultiArgs(func: string, method: string, expectedValue: number, failureValues: number[], successMessage: string, failureMessages: string[], args: string[]) {
         let url = "api/Kicker/" + func
         args.forEach(element => {
             url += ("/" + element)
@@ -355,7 +456,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         ).then(
             json => {
                 // console.log(json)
-                this.handleJson(json, expectedValue, failureValue, successMessage, failureMessage)
+                this.handleJsonMultiArgs(json, expectedValue, failureValues, successMessage, failureMessages)
             }
         )
             .catch(error => {
@@ -366,21 +467,26 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
     }
 
     // API call for GET method, expecting a different return type than the other calls
-    callApiGET(func: string, expectedValue: number, successMessage: string, failureMessage: string) {
+    callApiGET(func: string) {
         return fetch("api/Kicker/" + func, {
             method: "GET"
         }).then(
-            response => response.text()
-        ).then(
-            text => {
-                this.handleCSV(text, func)
-                return text.split(',')
+            response => {
+                if (response.status != 200) {
+                    alert("Failed to get data from server")
+                }
+                return response.text()
             }
+        ).then(
+            text =>
+                this.handleCSV(text, func)
+            // return text.split(',')
+
         )
             .catch(error => {
                 console.error(error)
                 alert(error)
-                return ["error"]
+                // return ["error"]
             });
     }
 
@@ -414,7 +520,7 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         var result: Team[];
         result = [];
         var len = fullList.length;
-        for (var _i = 0; _i < len ; _i += 2) {
+        for (var _i = 0; _i < len; _i += 2) {
             result.push(new Team(fullList[_i], Number(fullList[_i + 1])));
         }
         return result;
@@ -432,6 +538,14 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         else return true
     }
 
+    // Check whether input is integer number
+    isInteger(value: any) {
+        if (Number(value) === parseInt(value, 10)) {
+            return true
+        }
+        return false
+    }
+
 
     // If the return value is Json, this code creates the correct alerts depending on the status code.
     handleJson(json: any, expectedValue: number, failureValue: number, successMessage: string, failureMessage: string) {
@@ -440,6 +554,25 @@ export class TeamManager extends React.Component<RouteComponentProps<{}>, Attrib
         } else if (json.statusCode === failureValue) {
             this.inPageAlert(failureMessage, "failure")
         } else {
+            this.inPageAlert("Unknown error", "warning")
+        }
+        // console.log(json.content)
+    }
+
+    // If the return value is Json, this code creates the correct alerts depending on the status code.
+    handleJsonMultiArgs(json: any, expectedValue: number, failureValues: number[], successMessage: string, failureMessages: string[]) {
+        let expectedResponse = false
+        if (json.statusCode === expectedValue) {
+            this.inPageAlert(successMessage, "success")
+            expectedResponse = true
+        } else
+            for (let i = 0; i < failureValues.length; i++) {
+                if (json.statusCode === failureValues[i]) {
+                    this.inPageAlert(failureMessages[i], "failure")
+                    expectedResponse = true
+                }
+            }
+        if (!expectedResponse) {
             this.inPageAlert("Unknown error", "warning")
         }
         // console.log(json.content)
