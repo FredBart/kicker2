@@ -29,6 +29,7 @@ export class TeamManager extends TeamManagerProto {
         this.handleChange = this.handleChange.bind(this);
         this.postTeam = this.postTeam.bind(this);
         this.postPlayer = this.postPlayer.bind(this);
+        this.resetInputs()
         this.updateLists()
     }
 
@@ -49,7 +50,6 @@ export class TeamManager extends TeamManagerProto {
             <form onSubmit={this.postTeam}>
                 <label>
                     Add Team:{'\u00A0'}{'\u00A0'}{'\u00A0'}
-                    {/* <input type="text" value={this.state.teamPostName} onChange={this.handleTeamNameChange} /> */}
                     <input type="text" value={this.state.teamPostName} onChange={this.handleChange("teamPostName")} />
                 </label>
                 <input type="submit" value="Submit" />
@@ -63,7 +63,6 @@ export class TeamManager extends TeamManagerProto {
                 <input type="submit" value="Submit" />
             </form>
 
-            {/* <button onClick={() => { this.getPlayers() }}> GetPlayers </button> */}
 
 
             <div>

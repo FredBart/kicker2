@@ -28,10 +28,10 @@ export interface AttributeHandler {
     goals1: number;
     goals2: number;
 }
-    
+
 export class TeamManagerProto extends React.Component<RouteComponentProps<{}>, AttributeHandler> {
 
-    
+
 
     // ------------------- PARAMETER UPDATERS -------------------
 
@@ -54,8 +54,8 @@ export class TeamManagerProto extends React.Component<RouteComponentProps<{}>, A
     updateLists() {
         this.callApiGET("GetPlayers")
         this.callApiGET("GetTeams")
-        this.callApiGET("GetLadder")             // This won't be necessary for this page, later
     }
+
 
     updateLadder() {
         this.callApiGET("GetLadder")
@@ -208,6 +208,7 @@ export class TeamManagerProto extends React.Component<RouteComponentProps<{}>, A
         if (json.statusCode === expectedValue) {
             this.inPageAlert(successMessage, "success")
             expectedResponse = true
+            this.resetInputs()
         } else
             for (let i = 0; i < failureValues.length; i++) {
                 if (json.statusCode === failureValues[i]) {
@@ -249,5 +250,16 @@ export class TeamManagerProto extends React.Component<RouteComponentProps<{}>, A
             default:
                 this.setState({ alertColour: "#FFFFFF" })
         }
+    }
+
+    // Function to empty input boxes
+
+    resetInputs() {
+        this.setState({
+            team1: "",
+            team2: "",
+            goals1: 0,
+            goals2: 0
+        })
     }
 }

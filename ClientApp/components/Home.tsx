@@ -27,7 +27,8 @@ export class Home extends TeamManagerProto {
 
 
         this.handleChange = this.handleChange.bind(this);
-        this.updateLists()
+        this.eventMatch = this.eventMatch.bind(this);
+        this.updateLadder()
     }
 
 
@@ -47,7 +48,7 @@ export class Home extends TeamManagerProto {
             <h1> Ranking </h1>
 
             <div>
-                <form>
+                <form onSubmit={this.eventMatch}>
                     <label>
                         Team 1:{'\u00A0'}{'\u00A0'}{'\u00A0'}
                         <input type="text" value={this.state.team1} onChange={this.handleChange("team1")} />
@@ -55,7 +56,7 @@ export class Home extends TeamManagerProto {
                 </form>
 
 
-                <form>
+                <form onSubmit={this.eventMatch}>
                     <label>
                         Team 2:{'\u00A0'}{'\u00A0'}{'\u00A0'}
                         <input type="text" value={this.state.team2} onChange={this.handleChange("team2")} />
@@ -67,7 +68,7 @@ export class Home extends TeamManagerProto {
 
 
             <div>
-                <form>
+                <form onSubmit={this.eventMatch}>
                     <label>
                         Goals 1:{'\u00A0'}{'\u00A0'}
                         <input type="text" value={this.state.goals1} onChange={this.handleChange("goals1")} />
@@ -75,7 +76,7 @@ export class Home extends TeamManagerProto {
                 </form>
 
 
-                <form>
+                <form onSubmit={this.eventMatch}>
                     <label>
                         Goals 2:{'\u00A0'}{'\u00A0'}
                         <input type="text" value={this.state.goals2} onChange={this.handleChange("goals2")} />
@@ -83,14 +84,12 @@ export class Home extends TeamManagerProto {
                 </form>
 
 
+
             </div>
 
 
-            <button onClick={() => {
-                if (this.isInteger(this.state.goals1) && this.isInteger(this.state.goals1))
-                    if (this.state.team1 != this.state.team2) this.match(this.state.team1, this.state.team2, this.state.goals1, this.state.goals2)
-                    else this.inPageAlert("Team 1 must be different from team 2.", "failure")
-                else this.inPageAlert("Goals must be integer numbers.", "failure")
+            <button id="matchButton" onClick={() => {
+                this.makeMatch()
             }}>
                 Make Match
                 </button>
@@ -98,7 +97,7 @@ export class Home extends TeamManagerProto {
             <h2> Score </h2>
 
             <div style={{ overflow: 'auto' }}>
-                <table id="myTable">
+                <table id="ladder">
                     {this.state.ladder.map(function (idx) {
                         // return (<option value={idx.points + " " + idx.name}>{idx}</option>)
                         return <tr>
@@ -114,25 +113,51 @@ export class Home extends TeamManagerProto {
         </div>
 
     }
-       // Put functions
 
-       match(team1: string, team2: string, goals1: number, goals2: number) {
+    // Wrapper to use makeMatch() with onSubmit
+
+    eventMatch(event:any){
+        this.makeMatch()
+        event.preventDefault();
+    }
+    
+    // Function to check whether inputs are valid and to execute a match
+
+    makeMatch() {
+        if (this.isInteger(this.state.goals1) && this.isInteger(this.state.goals1))
+            if (this.validate(this.state.team1) && this.validate(this.state.team2))
+                if (this.state.team1 != this.state.team2)
+                    this.match(
+                        this.state.team1,
+                        this.state.team2,
+                        this.state.goals1,
+                        this.state.goals2
+                    )
+                else this.inPageAlert("Team 1 must be different from team 2.", "failure")
+            else this.inPageAlert("Invalid input", "failure")
+        else this.inPageAlert("Goals must be integer numbers.", "failure")
+    }
+
+    // Match function with API call
+
+    match(t1: string, t2: string, g1: number, g2: number) {
         {
-            if (window.confirm("Confirm: Team " + team1 + ": " + goals1 + " goals, team " + team2 + ": " + goals2 + " goals"))
+            if (window.confirm("Confirm: Team " + t1 + ": " + g1 + " goals, team " + t2 + ": " + g2 + " goals"))
                 this.callAPIMultiArgs(
                     "Match",
                     "PUT",
                     200,
                     [409, 404],
-                    "Team " + team1 + ": " + goals1 + " goals, team " + team2 + ": " + goals2 + " goals",
+                    "Team " + t1 + ": " + g1 + " goals, team " + t2 + ": " + g2 + " goals",
                     ["No draws allowed.", "One or both teams do not exist."],
                     [
-                        team1,
-                        team2,
-                        goals1.toString(),
-                        goals2.toString()
+                        t1,
+                        t2,
+                        g1.toString(),
+                        g2.toString()
                     ])
         }
-        this.updateLists()
+        this.updateLadder()
     }
+
 }
